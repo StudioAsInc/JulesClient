@@ -1,0 +1,66 @@
+Calculating task graph as no cached configuration is available for tasks: composeApp:compileCommonMainKotlinMetadata
+Type-safe project accessors is an incubating feature.
+
+> Configure project :composeApp
+w: The 'org.jetbrains.kotlin.multiplatform' plugin deprecated compatibility with Android Gradle plugin: 'com.android.application'
+The 'org.jetbrains.kotlin.multiplatform' plugin will not be compatible with 'com.android.application' starting with Android Gradle Plugin 9.0.0.
+
+Please change the structure of the your project and move the usage of 'com.android.application' into a separate subproject. The new subproject should add a dependency on this KMP subproject.
+
+Read more: https://kotl.in/kmp-project-structure-migration
+Solution: Please change the structure of your project and move the usage of 'com.android.application' into a separate subproject.
+See https://kotl.in/gradle/agp-new-kmp for more details.
+
+
+> Task :composeApp:kmpPartiallyResolvedDependenciesChecker
+> Task :composeApp:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :composeApp:generateComposeResClass UP-TO-DATE
+> Task :composeApp:copyNonXmlValueResourcesForCommonMain UP-TO-DATE
+> Task :composeApp:convertXmlValueResourcesForCommonMain NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForCommonMain UP-TO-DATE
+> Task :composeApp:generateResourceAccessorsForCommonMain UP-TO-DATE
+> Task :composeApp:generateExpectResourceCollectorsForCommonMain UP-TO-DATE
+> Task :composeApp:transformCommonMainDependenciesMetadata
+
+> Task :composeApp:compileCommonMainKotlinMetadata FAILED
+e: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/App.kt:46:43 None of the following candidates is applicable:
+
+fun Modifier.background(color: Color, shape: Shape = ...): Modifier:
+  Argument type mismatch: actual type is 'Modifier', but 'Color' was expected.
+
+fun Modifier.background(brush: Brush, shape: Shape = ..., alpha: Float = ...): Modifier:
+  Argument type mismatch: actual type is 'Modifier', but 'Brush' was expected.
+e: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/App.kt:46:54 Unresolved reference 'MaterialTheme'.
+e: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/JulesTheme.kt:32:42 Unresolved reference 'DarkColorScheme'.
+e: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/RepositoryView.kt:58:21 Unresolved reference 'Brush'.
+e: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/RepositoryView.kt:77:34 Unresolved reference 'FontFamily'.
+e: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/SessionView.kt:226:17 No value passed for parameter 'onSendMessage'.
+e: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/SettingsView.kt:145:42 None of the following candidates is applicable:
+
+fun Modifier.background(color: Color, shape: Shape = ...): Modifier:
+  Argument type mismatch: actual type is 'Modifier', but 'Color' was expected.
+
+fun Modifier.background(brush: Brush, shape: Shape = ..., alpha: Float = ...): Modifier:
+  Argument type mismatch: actual type is 'Modifier', but 'Brush' was expected.
+e: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/SettingsView.kt:145:60 Function invocation 'background(...)' expected.
+e: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/SettingsView.kt:148:76 Unresolved reference 'primary'.
+e: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/SettingsView.kt:157:64 Unresolved reference 'primary'.
+
+[Incubating] Problems report is available at: file:///C:/Users/Ashik/Desktop/JulesClient/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':composeApp:compileCommonMainKotlinMetadata'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 25s
+8 actionable tasks: 3 executed, 5 up-to-date
+Configuration cache entry stored.

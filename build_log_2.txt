@@ -1,0 +1,37 @@
+Reusing configuration cache.
+> Task :composeApp:kmpPartiallyResolvedDependenciesChecker
+> Task :composeApp:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :composeApp:generateExpectResourceCollectorsForCommonMain UP-TO-DATE
+> Task :composeApp:convertXmlValueResourcesForCommonMain NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForCommonMain UP-TO-DATE
+> Task :composeApp:prepareComposeResourcesTaskForCommonMain UP-TO-DATE
+> Task :composeApp:generateResourceAccessorsForCommonMain UP-TO-DATE
+> Task :composeApp:transformCommonMainDependenciesMetadata UP-TO-DATE
+> Task :composeApp:generateComposeResClass UP-TO-DATE
+
+> Task :composeApp:compileCommonMainKotlinMetadata
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/Settings.kt:3:1 'expect'/'actual' classes (including interfaces, objects, annotations, enums, and 'actual' typealiases) are in Beta. Consider using the '-Xexpect-actual-classes' flag to suppress this warning. Also see: https://youtrack.jetbrains.com/issue/KT-61573
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/components/Drawer.kt:128:17 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/components/Drawer.kt:357:73 'val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/components/Header.kt:180:37 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/components/Header.kt:234:13 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/components/InputArea.kt:173:39 'val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/components/InputArea.kt:351:96 'val Icons.Filled.Send: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Send.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/components/InputArea.kt:436:52 'val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/components/ProactiveSection.kt:122:40 'val Icons.Filled.List: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.List.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/RepositoryView.kt:86:17 'fun TabRow(selectedTabIndex: Int, modifier: Modifier = ..., containerColor: Color = ..., contentColor: Color = ..., indicator: ComposableFunction1<List<TabPosition>, Unit> = ..., divider: ComposableFunction0<Unit> = ..., tabs: ComposableFunction0<Unit>): Unit' is deprecated. Replaced with PrimaryTabRow and SecondaryTabRow.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/RepositoryView.kt:94:34 'fun Modifier.tabIndicatorOffset(currentTabPosition: TabPosition): Modifier' is deprecated. Solely for use alongside deprecated TabRowDefaults.Indicator method. For recommended PrimaryIndicator and SecondaryIndicator methods, please use TabIndicatorScope.tabIndicatorOffset method.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/SessionView.kt:482:31 Condition is always 'true'.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/SessionView.kt:488:27 Condition is always 'true'.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/SessionView.kt:506:78 Unnecessary safe call on a non-null receiver of type 'SessionFailed'.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/SessionView.kt:581:36 'val Icons.Filled.List: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.List.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/SessionView.kt:898:28 'val LocalClipboardManager: ProvidableCompositionLocal<ClipboardManager>' is deprecated. Use LocalClipboard instead which supports suspend functions.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/SessionView.kt:973:44 'val Icons.Filled.OpenInNew: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.OpenInNew.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/SettingsView.kt:69:43 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/ui/screens/SettingsView.kt:277:21 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/viewmodel/SharedViewModel.kt:19:8 'typealias Clock = Clock' is deprecated. This type is deprecated in favor of `kotlin.time.Clock`.
+w: file:///C:/Users/Ashik/Desktop/JulesClient/composeApp/src/commonMain/kotlin/dev/therealashik/client/jules/viewmodel/SharedViewModel.kt:21:8 'typealias Instant = Instant' is deprecated. This type is deprecated in favor of `kotlin.time.Instant`.
+
+BUILD SUCCESSFUL in 10s
+8 actionable tasks: 2 executed, 6 up-to-date
+Configuration cache entry reused.
