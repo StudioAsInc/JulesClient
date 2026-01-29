@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
@@ -312,11 +311,11 @@ class SharedViewModel : ViewModel() {
             // Check if we are still looking at this session
             if (_uiState.value.currentSession?.name != sessionName) return
 
-            // Parallel fetch for better performance
+            // Parallel fetch could be better but sequential is safer for now
             val (activitiesResp, session) = withContext(Dispatchers.IO) {
-                val act = async { api.listActivities(sessionName) }
-                val sess = async { api.getSession(sessionName) }
-                act.await() to sess.await()
+                val act = api.listActivities(sessionName)
+                val sess = api.getSession(sessionName)
+                act to sess
             }
 
             val isProcessing = session.state == SessionState.QUEUED ||
