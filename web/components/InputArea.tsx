@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import { Plus, Rocket, ArrowRight, Check, Clock, MessageSquare, FileSearch, Search, GitBranch, ChevronDown, Type, Settings2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { JulesSource, AutomationMode } from '../types';
@@ -35,7 +35,8 @@ const DEFAULT_PLACEHOLDERS = [
 const PLACEHOLDER_CYCLE_INTERVAL = 3500;
 const BRANCH_BUTTON_MAX_WIDTH = '120px'; // For styles
 
-export const InputArea: React.FC<InputAreaProps> = ({
+// Memoized to prevent re-renders when parent (SessionView/App) updates (e.g. streaming tokens)
+export const InputArea: React.FC<InputAreaProps> = memo(({
     onSendMessage,
     isLoading,
     variant = 'default',
@@ -476,4 +477,5 @@ export const InputArea: React.FC<InputAreaProps> = ({
             </div>
         </div>
     );
-};
+});
+InputArea.displayName = 'InputArea';

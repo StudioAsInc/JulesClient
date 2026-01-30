@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ChatHistory } from './ChatHistory';
 import { InputArea, SessionCreateOptions } from './InputArea';
@@ -34,9 +34,9 @@ export const SessionView: React.FC<SessionViewProps> = ({
     }, [activities.length, isProcessing]);
 
     // Wrapper to adapt simple text callback to SessionCreateOptions signature
-    const handleSendMessage = (text: string, _options: SessionCreateOptions) => {
+    const handleSendMessage = useCallback((text: string, _options: SessionCreateOptions) => {
         onSendMessage(text);
-    };
+    }, [onSendMessage]);
 
     return (
         <div className="flex-1 flex flex-col h-full relative overflow-hidden bg-background">

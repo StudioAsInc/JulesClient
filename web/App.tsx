@@ -200,7 +200,8 @@ export default function App() {
         poll();
     }, []);
 
-    const handleSendMessage = async (text: string, options: SessionCreateOptions) => {
+    // Memoized handler to prevent InputArea re-renders
+    const handleSendMessage = useCallback(async (text: string, options: SessionCreateOptions) => {
         setError(null);
         setIsProcessing(true);
 
@@ -252,9 +253,9 @@ export default function App() {
             setError(e.message || "An error occurred");
             setIsProcessing(false);
         }
-    };
+    }, [currentSession, currentSource, navigate, startPolling]);
 
-    const handleApprovePlan = async (activityName: string) => {
+    const handleApprovePlan = useCallback(async (activityName: string) => {
         if (!currentSession) return;
         setIsProcessing(true);
         try {
@@ -264,7 +265,11 @@ export default function App() {
         } finally {
             setIsProcessing(false);
         }
-    };
+    }, [currentSession]);
+
+    const handleSessionMessage = useCallback((text: string) => {
+        handleSendMessage(text, { mode: 'START' });
+    }, [handleSendMessage]);
 
     const handleSelectSession = (session: JulesSession) => {
         setCurrentSession(session);
@@ -403,7 +408,7 @@ export default function App() {
                             activities={activities}
                             isProcessing={isProcessing}
                             error={error}
-                            onSendMessage={(text) => handleSendMessage(text, { mode: 'START' })}
+                            onSendMessage={handleSessionMessage}
                             onApprovePlan={handleApprovePlan}
                             defaultCardCollapsed={defaultCardCollapsed}
                         />
