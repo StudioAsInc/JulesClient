@@ -17,3 +17,7 @@
 
 - **Chat Input**: Use `items-end` alignment in flex containers to ensure action buttons remain anchored to the bottom when the text input expands to multiple lines.
 - **Styling**: Use `rounded-[26px]` to achieve a "pill" shape for input containers, consistent with the premium design language.
+
+## 2024-05-22 - Custom Dropdown Accessibility
+**Learning:** Custom dropdowns built with `motion.div` often lack semantic roles, making them invisible to screen readers as interactive menus.
+**Action:** Always add `role="menu"` to the dropdown container and `role="menuitem"`/`role="menuitemradio"` to items, ensuring `aria-checked` is set for selection states.

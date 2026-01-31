@@ -316,12 +316,14 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
                                         transformOrigin: branchMenuPos.transformOrigin
                                     }}
                                     className="branch-menu-dropdown w-[260px] max-w-[calc(100vw-2rem)] bg-[#121215] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col ring-1 ring-black/50"
+                                    role="menu"
                                 >
                                     <div className="p-2 border-b border-white/5 bg-[#0e0e11]">
                                         <div className="flex items-center gap-2 bg-[#18181b] border border-white/5 rounded-lg px-2.5 py-1.5">
                                             <Search size={12} className="text-zinc-500" />
                                             <input
                                                 type="text"
+                                                aria-label="Filter branches"
                                                 placeholder="Find a branch..."
                                                 value={branchSearch}
                                                 onChange={(e) => setBranchSearch(e.target.value)}
@@ -333,6 +335,8 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
                                         {filteredBranches.map(branch => (
                                             <button
                                                 key={branch.displayName}
+                                                role="menuitemradio"
+                                                aria-checked={selectedBranch === branch.displayName}
                                                 onClick={() => {
                                                     setSelectedBranch(branch.displayName);
                                                     setIsBranchMenuOpen(false);
@@ -392,6 +396,7 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
                                         transformOrigin: modeMenuPos.transformOrigin
                                     }}
                                     className="mode-menu-dropdown w-[280px] bg-[#121215] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 ring-1 ring-black/80 flex flex-col"
+                                    role="menu"
                                 >
                                     {/* Section 1: Title Input */}
                                     <div className="p-3 border-b border-white/5">
@@ -417,6 +422,8 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
                                         {['START', 'SCHEDULED', 'INTERACTIVE', 'REVIEW'].map((mode) => (
                                             <button
                                                 key={mode}
+                                                role="menuitemradio"
+                                                aria-checked={selectedMode === mode}
                                                 onClick={() => { setSelectedMode(mode as SessionMode); setIsModeMenuOpen(false); }}
                                                 className={twMerge(
                                                     "w-full text-left p-2 rounded-lg group transition-colors flex items-start gap-3 min-h-[36px]",
