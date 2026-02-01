@@ -2,11 +2,13 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import {
     Theme,
     ThemeSettings,
+    PaginationSettings,
     DEFAULT_THEME,
     DEFAULT_SETTINGS,
     isValidThemeSettings,
     isValidTheme
 } from '../types/themeTypes';
+import * as JulesApi from '../services/geminiService';
 
 const STORAGE_KEY = 'jules_theme_settings';
 
@@ -20,6 +22,8 @@ interface ThemeContextValue {
     importSettings: (json: string) => { success: boolean; error?: string };
     defaultCardCollapsed: boolean;
     setDefaultCardCollapsed: (collapsed: boolean) => void;
+    pagination: PaginationSettings;
+    setPagination: (pagination: PaginationSettings) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -59,6 +63,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         applyThemeToDOM(settings.theme);
     }, [settings.theme]);
+
+    // Sync pagination settings with API service
+    useEffect(() => {
+        if (settings.pagination) {
+            JulesApi.setPaginationSettings(settings.pagination);
+        }
+    }, [settings.pagination]);
 
     // Persist settings to localStorage
     useEffect(() => {
@@ -105,6 +116,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         setSettings(prev => ({ ...prev, defaultCardCollapsed: collapsed }));
     }, []);
 
+    const setPagination = useCallback((pagination: PaginationSettings) => {
+        setSettings(prev => ({ ...prev, pagination }));
+    }, []);
+
     return (
         <ThemeContext.Provider value={{
             theme: settings.theme,
@@ -116,6 +131,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
             importSettings,
             defaultCardCollapsed: settings.defaultCardCollapsed,
             setDefaultCardCollapsed,
+            pagination: settings.pagination || DEFAULT_SETTINGS.pagination,
+            setPagination,
         }}>
             {children}
         </ThemeContext.Provider>

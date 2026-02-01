@@ -10,19 +10,25 @@ export interface Theme {
     textMuted: string;
 }
 
+export interface PaginationSettings {
+    autoPaginate: boolean;
+    pageSize: number;
+}
+
 export interface ThemeSettings {
     theme: Theme;
     defaultCardCollapsed: boolean;
+    pagination: PaginationSettings;
 }
 
 export const DEFAULT_THEME: Theme = {
-    background: '#2e2e36',
-    surface: '#3b3b44',
-    surfaceHighlight: '#464652',
-    border: '#6b7280',
+    background: '#0c0c0c',
+    surface: '#161619',
+    surfaceHighlight: '#27272a',
+    border: '#27272a',
     primary: '#A855F7',
-    textMain: '#F3F4F6',
-    textMuted: '#9CA3AF',
+    textMain: '#E4E4E7',
+    textMuted: '#A1A1AA',
 };
 
 export const PRESET_THEMES: Record<string, Theme> = {
@@ -77,6 +83,10 @@ export const PRESET_THEMES: Record<string, Theme> = {
 export const DEFAULT_SETTINGS: ThemeSettings = {
     theme: DEFAULT_THEME,
     defaultCardCollapsed: false,
+    pagination: {
+        autoPaginate: true,
+        pageSize: 20
+    }
 };
 
 // Validation helpers
@@ -99,5 +109,16 @@ export function isValidTheme(obj: unknown): obj is Theme {
 export function isValidThemeSettings(obj: unknown): obj is ThemeSettings {
     if (typeof obj !== 'object' || obj === null) return false;
     const settings = obj as Record<string, unknown>;
-    return isValidTheme(settings.theme) && typeof settings.defaultCardCollapsed === 'boolean';
+
+    const hasValidPagination = (pag: any) =>
+        typeof pag === 'object' &&
+        pag !== null &&
+        typeof pag.autoPaginate === 'boolean' &&
+        typeof pag.pageSize === 'number';
+
+    return (
+        isValidTheme(settings.theme) &&
+        typeof settings.defaultCardCollapsed === 'boolean' &&
+        (settings.pagination === undefined || hasValidPagination(settings.pagination))
+    );
 }

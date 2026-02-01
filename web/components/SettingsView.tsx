@@ -124,13 +124,24 @@ export const SettingsView: React.FC = () => {
         exportSettings,
         importSettings,
         defaultCardCollapsed,
-        setDefaultCardCollapsed
+        setDefaultCardCollapsed,
+        pagination,
+        setPagination
     } = useTheme();
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [importError, setImportError] = useState<string | null>(null);
     const [importSuccess, setImportSuccess] = useState(false);
     const [mobileCategory, setMobileCategory] = useState<SettingsCategory | null>(null);
+
+    const handlePageSizeChange = (val: string) => {
+        let size = parseInt(val, 10);
+        if (isNaN(size)) return;
+
+        // Clamp between 1 and 100
+        size = Math.max(1, Math.min(100, size));
+        setPagination({ ...pagination, pageSize: size });
+    };
 
     const handleExport = () => {
         const json = exportSettings();
@@ -198,6 +209,32 @@ export const SettingsView: React.FC = () => {
                 label="Collapse Cards by Default"
                 description="Improve performance for long sessions"
             />
+        </div>
+    );
+
+    // Pagination Settings Section
+    const PaginationSection = () => (
+        <div className="divide-y divide-white/5">
+            <ToggleSwitch
+                checked={pagination.autoPaginate}
+                onChange={(checked) => setPagination({ ...pagination, autoPaginate: checked })}
+                label="Automatic Pagination"
+                description="Automatically fetch all pages of results"
+            />
+            <div className="flex items-center justify-between gap-4 p-4">
+                <div className="space-y-0.5 flex-1">
+                    <div className="text-sm font-medium text-[var(--color-text-main)]">Page Size</div>
+                    <div className="text-xs text-[var(--color-text-muted)]">Number of items per request</div>
+                </div>
+                <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={pagination.pageSize}
+                    onChange={(e) => handlePageSizeChange(e.target.value)}
+                    className="w-20 bg-black/30 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-[var(--color-text-main)] focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                />
+            </div>
         </div>
     );
 
@@ -327,7 +364,16 @@ export const SettingsView: React.FC = () => {
     // Mobile Category View Renderer
     const renderMobileCategory = () => {
         const sections: Record<SettingsCategory, { title: string; content: React.ReactNode }> = {
-            'general': { title: 'General', content: <GeneralSection /> },
+            'general': {
+                title: 'General',
+                content: (
+                    <>
+                        <GeneralSection />
+                        <div className="px-4 py-2 bg-white/5 text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Pagination</div>
+                        <PaginationSection />
+                    </>
+                )
+            },
             'appearance': { title: 'Appearance', content: <AppearanceSection /> },
             'theme': { title: 'Theme Colors', content: <ThemeSection /> },
             'import-export': { title: 'Import / Export', content: <ImportExportSection /> },
@@ -418,6 +464,16 @@ export const SettingsView: React.FC = () => {
                     </h2>
                     <div className="bg-[var(--color-surface)] border border-white/5 rounded-xl overflow-hidden">
                         <GeneralSection />
+                    </div>
+                </section>
+
+                {/* Pagination */}
+                <section className="space-y-3">
+                    <h2 className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2 px-1">
+                        <Sliders size={14} /> Pagination
+                    </h2>
+                    <div className="bg-[var(--color-surface)] border border-white/5 rounded-xl overflow-hidden">
+                        <PaginationSection />
                     </div>
                 </section>
 

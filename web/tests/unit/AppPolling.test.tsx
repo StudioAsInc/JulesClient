@@ -9,6 +9,7 @@ import { ThemeProvider } from '../../contexts/ThemeContext';
 // Mock the API
 vi.mock('../../services/geminiService', () => ({
     setApiKey: vi.fn(),
+    setPaginationSettings: vi.fn(),
     listSources: vi.fn(),
     listAllSessions: vi.fn(),
     getSession: vi.fn(),

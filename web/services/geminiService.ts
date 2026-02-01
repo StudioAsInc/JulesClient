@@ -5,11 +5,21 @@ import {
   AutomationMode,
   ListSourcesResponse,
   ListSessionsResponse,
-  ListActivitiesResponse
+  ListActivitiesResponse,
+  PaginationSettings
 } from "../types";
 
 let API_KEY = "";
 const BASE_URL = "https://jules.googleapis.com/v1alpha";
+
+let paginationSettings: PaginationSettings = {
+  autoPaginate: true,
+  pageSize: 20
+};
+
+export const setPaginationSettings = (settings: PaginationSettings) => {
+  paginationSettings = settings;
+};
 
 export const setApiKey = (key: string) => {
   API_KEY = key;
@@ -34,7 +44,7 @@ export interface ListSourcesOptions {
 export const listSources = async (options?: ListSourcesOptions): Promise<ListSourcesResponse> => {
   try {
     const params = new URLSearchParams();
-    if (options?.pageSize) params.append('pageSize', String(options.pageSize));
+    params.append('pageSize', String(options?.pageSize ?? paginationSettings.pageSize));
     if (options?.pageToken) params.append('pageToken', options.pageToken);
 
     const queryString = params.toString();
@@ -81,9 +91,9 @@ export const listAllSources = async (): Promise<JulesSource[]> => {
   let pageToken: string | undefined;
 
   do {
-    const response = await listSources({ pageSize: 50, pageToken });
+    const response = await listSources({ pageSize: paginationSettings.pageSize, pageToken });
     allSources.push(...response.sources);
-    pageToken = response.nextPageToken;
+    pageToken = paginationSettings.autoPaginate ? response.nextPageToken : undefined;
   } while (pageToken);
 
   return allSources;
@@ -131,7 +141,7 @@ export interface ListSessionsOptions {
 export const listSessions = async (options?: ListSessionsOptions): Promise<ListSessionsResponse> => {
   try {
     const params = new URLSearchParams();
-    params.append('pageSize', String(options?.pageSize ?? 20));
+    params.append('pageSize', String(options?.pageSize ?? paginationSettings.pageSize));
     if (options?.pageToken) params.append('pageToken', options.pageToken);
 
     const res = await fetch(`${BASE_URL}/sessions?${params.toString()}`, { headers: getHeaders() });
@@ -162,9 +172,9 @@ export const listAllSessions = async (): Promise<JulesSession[]> => {
   let pageToken: string | undefined;
 
   do {
-    const response = await listSessions({ pageSize: 50, pageToken });
+    const response = await listSessions({ pageSize: paginationSettings.pageSize, pageToken });
     allSessions.push(...response.sessions);
-    pageToken = response.nextPageToken;
+    pageToken = paginationSettings.autoPaginate ? response.nextPageToken : undefined;
   } while (pageToken);
 
   return allSessions;
@@ -267,7 +277,7 @@ export const listActivities = async (
 ): Promise<ListActivitiesResponse> => {
   try {
     const params = new URLSearchParams();
-    params.append('pageSize', String(options?.pageSize ?? 50));
+    params.append('pageSize', String(options?.pageSize ?? paginationSettings.pageSize));
     if (options?.pageToken) params.append('pageToken', options.pageToken);
     if (options?.createTime) params.append('createTime', options.createTime);
 
@@ -301,9 +311,9 @@ export const listAllActivities = async (sessionId: string): Promise<JulesActivit
   let pageToken: string | undefined;
 
   do {
-    const response = await listActivities(sessionId, { pageSize: 100, pageToken });
+    const response = await listActivities(sessionId, { pageSize: paginationSettings.pageSize, pageToken });
     allActivities.push(...response.activities);
-    pageToken = response.nextPageToken;
+    pageToken = paginationSettings.autoPaginate ? response.nextPageToken : undefined;
   } while (pageToken);
 
   return allActivities;
