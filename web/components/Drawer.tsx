@@ -120,6 +120,7 @@ export const Drawer: React.FC<DrawerProps> = ({
                     <div className="py-2">
                         <button
                             onClick={() => setIsSessionsOpen(!isSessionsOpen)}
+                            aria-expanded={isSessionsOpen}
                             className="w-full flex items-center justify-between px-3 py-2 text-zinc-400 hover:text-white transition-colors group"
                         >
                             <span className="text-sm font-medium group-hover:text-zinc-200">Recent sessions</span>
@@ -182,6 +183,9 @@ export const Drawer: React.FC<DrawerProps> = ({
                                                                 e.stopPropagation();
                                                                 setMenuOpenId(menuOpenId === session.name ? null : session.name);
                                                             }}
+                                                            aria-label={`Session options for ${session.title || session.prompt}`}
+                                                            aria-haspopup="true"
+                                                            aria-expanded={menuOpenId === session.name}
                                                             className={`p-1.5 rounded-md transition-all ${menuOpenId === session.name ? 'opacity-100 bg-white/10 text-white' : 'opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-white hover:bg-white/10'}`}
                                                         >
                                                             <MoreHorizontal size={16} />
@@ -198,9 +202,13 @@ export const Drawer: React.FC<DrawerProps> = ({
                                                                         setMenuOpenId(null);
                                                                     }}
                                                                 />
-                                                                <div className="absolute right-0 top-full mt-1 w-32 bg-[#18181b] border border-white/10 rounded-lg shadow-xl z-50 overflow-hidden py-1">
+                                                                <div
+                                                                    role="menu"
+                                                                    className="absolute right-0 top-full mt-1 w-32 bg-[#18181b] border border-white/10 rounded-lg shadow-xl z-50 overflow-hidden py-1"
+                                                                >
                                                                     {(session.state === 'IN_PROGRESS' || session.state === 'PLANNING') && (
                                                                         <button
+                                                                            role="menuitem"
                                                                             onClick={(e) => {
                                                                                 e.preventDefault();
                                                                                 e.stopPropagation();
@@ -215,6 +223,7 @@ export const Drawer: React.FC<DrawerProps> = ({
 
                                                                     {session.state === 'PAUSED' && (
                                                                         <button
+                                                                            role="menuitem"
                                                                             onClick={(e) => {
                                                                                 e.preventDefault();
                                                                                 e.stopPropagation();
@@ -228,6 +237,7 @@ export const Drawer: React.FC<DrawerProps> = ({
                                                                     )}
 
                                                                     <button
+                                                                        role="menuitem"
                                                                         onClick={(e) => {
                                                                             e.preventDefault();
                                                                             e.stopPropagation();
@@ -257,6 +267,7 @@ export const Drawer: React.FC<DrawerProps> = ({
                     <div className="py-2">
                         <button
                             onClick={() => setIsCodebasesOpen(!isCodebasesOpen)}
+                            aria-expanded={isCodebasesOpen}
                             className="w-full flex items-center justify-between px-3 py-2 text-zinc-400 hover:text-white transition-colors group"
                         >
                             <span className="text-sm font-medium group-hover:text-zinc-200">Repositories</span>
@@ -337,7 +348,7 @@ export const Drawer: React.FC<DrawerProps> = ({
                             <Settings size={14} />
                             Settings
                         </Link>
-                        <button className="w-10 h-10 flex items-center justify-center bg-[#161619] hover:bg-[#1E1E22] border border-white/5 rounded-lg text-zinc-400 hover:text-white transition-colors" title="Documentation">
+                        <button aria-label="Documentation" className="w-10 h-10 flex items-center justify-center bg-[#161619] hover:bg-[#1E1E22] border border-white/5 rounded-lg text-zinc-400 hover:text-white transition-colors" title="Documentation">
                             <FileText size={18} />
                         </button>
                         <button aria-label="Join Discord" className="w-10 h-10 flex items-center justify-center bg-[#161619] hover:bg-[#1E1E22] border border-white/5 rounded-lg text-zinc-400 hover:text-white transition-colors">
