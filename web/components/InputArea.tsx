@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, memo } from 'react';
+import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { Plus, Rocket, ArrowRight, Check, Clock, MessageSquare, FileSearch, Search, GitBranch, ChevronDown, Type, Settings2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { JulesSource, AutomationMode } from '../types';
@@ -167,10 +167,13 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [input, isBranchMenuOpen, isModeMenuOpen]);
 
-    const branches = currentSource?.githubRepo?.branches || [];
-    const filteredBranches = branches.filter(b =>
-        b.displayName.toLowerCase().includes(branchSearch.toLowerCase())
-    );
+    // Optimization: Memoize filtering to prevent re-calculation on every 3.5s placeholder cycle
+    const filteredBranches = useMemo(() => {
+        const branches = currentSource?.githubRepo?.branches || [];
+        return branches.filter(b =>
+            b.displayName.toLowerCase().includes(branchSearch.toLowerCase())
+        );
+    }, [currentSource?.githubRepo?.branches, branchSearch]);
 
     const isExpanded = isFocused || input.length > 0;
 
