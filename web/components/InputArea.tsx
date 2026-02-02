@@ -185,7 +185,10 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
                         isFocused ? 'border-zinc-500/40 ring-1 ring-zinc-500/10 shadow-2xl' : 'border-white/10 shadow-lg'
                     )}
                 >
-                    <button className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/5 flex-shrink-0">
+                    <button
+                        aria-label="Add attachment"
+                        className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/5 flex-shrink-0"
+                    >
                         <Plus size={20} />
                     </button>
 
@@ -202,6 +205,7 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
                     />
 
                     <motion.button
+                        aria-label="Send message"
                         whileTap={{ scale: 0.95 }}
                         onClick={handleSubmit}
                         disabled={!input.trim() || isLoading}
