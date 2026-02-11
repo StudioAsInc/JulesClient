@@ -69,9 +69,9 @@ export const RepositoryView: React.FC<RepositoryViewProps> = ({
     }, [sessions, filter, search]);
 
     return (
-        <div className="flex-1 flex flex-col h-full bg-[#0c0c0c] overflow-y-auto animate-in fade-in duration-300">
+        <div className="flex-1 flex flex-col h-full bg-background overflow-y-auto animate-in fade-in duration-300">
             {/* Hero Header */}
-            <div className="w-full bg-[#0E0E11] border-b border-white/5 pt-6 md:pt-8 px-4 sm:px-8 pb-0">
+            <div className="w-full bg-background border-b border-white/5 pt-6 md:pt-8 px-4 sm:px-8 pb-0">
                 <div className="max-w-6xl mx-auto">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6 md:mb-8">
                         <div className="flex items-start gap-4 md:gap-5">
@@ -177,12 +177,12 @@ export const RepositoryView: React.FC<RepositoryViewProps> = ({
                                             placeholder="Search tasks..."
                                             value={search}
                                             onChange={(e) => setSearch(e.target.value)}
-                                            className="w-full sm:w-48 bg-[#161619] border border-white/10 rounded-lg pl-9 pr-4 py-2 md:py-1.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500/50 transition-all font-light"
+                                            className="w-full sm:w-48 bg-surface border border-white/10 rounded-lg pl-9 pr-4 py-2 md:py-1.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500/50 transition-all font-light"
                                         />
                                     </div>
 
                                     {/* Detailed Filters (As requested) */}
-                                    <div className="bg-[#161619] p-1 rounded-lg border border-white/10 flex items-center overflow-x-auto no-scrollbar">
+                                    <div className="bg-surface p-1 rounded-lg border border-white/10 flex items-center overflow-x-auto no-scrollbar">
                                         <FilterTab label="All" active={filter === 'all'} onClick={() => setFilter('all')} />
                                         <FilterTab label="Scheduled" active={filter === 'scheduled'} onClick={() => setFilter('scheduled')} />
                                         <FilterTab label="Completed" active={filter === 'completed'} onClick={() => setFilter('completed')} />
@@ -193,7 +193,7 @@ export const RepositoryView: React.FC<RepositoryViewProps> = ({
                             </div>
 
                             {displaySessions.length === 0 ? (
-                                <div className="h-64 flex flex-col items-center justify-center bg-[#0E0E11] border border-dashed border-white/10 rounded-2xl p-4 text-center">
+                                <div className="h-64 flex flex-col items-center justify-center bg-background border border-dashed border-white/10 rounded-2xl p-4 text-center">
                                     <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-zinc-500 mb-4">
                                         {filter === 'all' ? <Terminal size={24} /> : <Search size={24} />}
                                     </div>
@@ -226,7 +226,7 @@ export const RepositoryView: React.FC<RepositoryViewProps> = ({
                 {/* Other tabs remain same but with minor mobile tweaks */}
                 {activeTab === 'environment' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 animate-in slide-in-from-bottom-2 duration-300">
-                        <div className="bg-[#0E0E11] border border-white/5 rounded-2xl p-5 md:p-6 shadow-sm">
+                        <div className="bg-background border border-white/5 rounded-2xl p-5 md:p-6 shadow-sm">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
                                     <Code2 size={20} />
@@ -241,7 +241,7 @@ export const RepositoryView: React.FC<RepositoryViewProps> = ({
                             </div>
                         </div>
 
-                        <div className="bg-[#0E0E11] border border-white/5 rounded-2xl p-5 md:p-6 shadow-sm">
+                        <div className="bg-background border border-white/5 rounded-2xl p-5 md:p-6 shadow-sm">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
                                     <Zap size={20} />
@@ -259,8 +259,8 @@ export const RepositoryView: React.FC<RepositoryViewProps> = ({
                 )}
 
                 {activeTab === 'knowledge' && (
-                    <div className="flex flex-col items-center justify-center py-20 bg-[#0E0E11] border border-white/5 rounded-2xl border-dashed animate-in slide-in-from-bottom-2 duration-300 p-4 text-center">
-                        <div className="w-16 h-16 rounded-2xl bg-[#18181B] flex items-center justify-center text-zinc-500 mb-6 shadow-inner">
+                    <div className="flex flex-col items-center justify-center py-20 bg-background border border-white/5 rounded-2xl border-dashed animate-in slide-in-from-bottom-2 duration-300 p-4 text-center">
+                        <div className="w-16 h-16 rounded-2xl bg-surface flex items-center justify-center text-zinc-500 mb-6 shadow-inner">
                             <Book size={32} />
                         </div>
                         <h3 className="text-xl font-medium text-white mb-2">Knowledge Base</h3>
@@ -297,7 +297,7 @@ const TabItem = ({ label, icon, isActive, onClick }: any) => (
 );
 
 const StatCard = ({ label, value, icon, color, bg, border }: any) => (
-    <div className={`flex flex-col p-4 md:p-5 rounded-2xl bg-[#0E0E11] border border-white/5 relative overflow-hidden group hover:border-white/10 transition-colors shadow-sm`}>
+    <div className={`flex flex-col p-4 md:p-5 rounded-2xl bg-background border border-white/5 relative overflow-hidden group hover:border-white/10 transition-colors shadow-sm`}>
         <div className="flex justify-between items-start mb-3 md:mb-4 relative z-10">
             <span className="text-zinc-500 text-xs md:text-sm font-medium">{label}</span>
             <div className={`p-1.5 md:p-2 rounded-lg ${bg} ${color} ${border} border shadow-sm`}>
@@ -317,7 +317,7 @@ const FilterTab = ({ label, active, onClick }: any) => (
         className={`
             flex-1 sm:flex-none px-3 py-1.5 text-xs font-medium rounded-md transition-all text-center whitespace-nowrap mx-0.5
             ${active
-                ? 'bg-[#27272A] text-white shadow-md'
+                ? 'bg-surfaceHighlight text-white shadow-md'
                 : 'text-zinc-500 hover:text-zinc-300'}
         `}
     >
@@ -333,7 +333,7 @@ const SessionListItem = ({ session, onClick }: { session: JulesSession, onClick:
     return (
         <button
             onClick={onClick}
-            className="w-full text-left group flex flex-col sm:flex-row sm:items-center justify-between p-3 md:p-4 bg-[#0E0E11] hover:bg-[#161619] border border-white/5 hover:border-indigo-500/30 rounded-xl transition-all shadow-sm gap-3 sm:gap-4 relative overflow-hidden"
+            className="w-full text-left group flex flex-col sm:flex-row sm:items-center justify-between p-3 md:p-4 bg-background hover:bg-surface border border-white/5 hover:border-indigo-500/30 rounded-xl transition-all shadow-sm gap-3 sm:gap-4 relative overflow-hidden"
         >
             <div className="flex items-start gap-3 sm:gap-4 overflow-hidden relative z-10">
                 <div className={`

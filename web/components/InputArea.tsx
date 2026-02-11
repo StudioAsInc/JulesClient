@@ -184,7 +184,7 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
                 <motion.div
                     layout
                     className={twMerge(
-                        "relative flex items-end gap-2 bg-[#1c1c1f]/95 backdrop-blur-xl border rounded-[26px] p-1.5 transition-all duration-200",
+                        "relative flex items-end gap-2 bg-surface/95 backdrop-blur-xl border rounded-[26px] p-1.5 transition-all duration-200",
                         isFocused ? 'border-zinc-500/40 ring-1 ring-zinc-500/10 shadow-2xl' : 'border-white/10 shadow-lg'
                     )}
                 >
@@ -216,7 +216,7 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
                             "w-10 h-10 flex items-center justify-center rounded-full transition-all flex-shrink-0 duration-300",
                             input.trim()
                                 ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/25'
-                                : 'bg-[#27272a] text-zinc-500 cursor-not-allowed border border-white/5'
+                                : 'bg-surfaceHighlight text-zinc-500 cursor-not-allowed border border-white/5'
                         )}
                     >
                         {isLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <ArrowRight size={18} />}
@@ -231,10 +231,10 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
         <div
             ref={containerRef}
             className={twMerge(
-                "relative w-full bg-[#141417] border flex flex-col cursor-text transition-all duration-200 ease-out",
+                "relative w-full bg-surface border flex flex-col cursor-text transition-all duration-200 ease-out",
                 isExpanded
                     ? 'rounded-xl min-h-[140px] border-indigo-500/40 shadow-[0_4px_30px_-4px_rgba(99,102,241,0.15)] ring-1 ring-indigo-500/20'
-                    : 'rounded-xl min-h-[60px] border-white/10 shadow-sm hover:border-white/20 hover:bg-[#18181b]'
+                    : 'rounded-xl min-h-[60px] border-white/10 shadow-sm hover:border-white/20 hover:bg-surfaceHighlight'
             )}
             onClick={() => {
                 if (!isFocused) {
@@ -268,7 +268,7 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
 
             {/* Footer Controls */}
             <div className={twMerge(
-                "flex items-center justify-between pointer-events-auto transition-all duration-200 ease-out bg-[#141417]/50 rounded-b-xl",
+                "flex items-center justify-between pointer-events-auto transition-all duration-200 ease-out bg-surface/50 rounded-b-xl",
                 isExpanded ? 'px-3 pb-3 pt-2 opacity-100 border-t border-white/5' : 'px-3 pb-3 opacity-100'
             )}>
 
@@ -282,7 +282,7 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         aria-label="Add attachment"
-                        className="w-6 h-6 aspect-square flex-shrink-0 flex items-center justify-center rounded-md bg-[#1f1f23] hover:bg-[#2a2a2f] border border-white/10 text-zinc-400 hover:text-white transition-all duration-150"
+                        className="w-6 h-6 aspect-square flex-shrink-0 flex items-center justify-center rounded-md bg-surfaceHighlight hover:bg-surface border border-white/10 text-zinc-400 hover:text-white transition-all duration-150"
                     >
                         <Plus size={14} />
                     </motion.button>
@@ -300,7 +300,7 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
                             aria-haspopup="true"
                             aria-expanded={isBranchMenuOpen}
                             style={{ maxWidth: BRANCH_BUTTON_MAX_WIDTH }}
-                            className="flex items-center gap-1.5 px-2 bg-[#1f1f23] hover:bg-[#2a2a2f] border border-white/10 rounded-lg text-[10px] font-mono text-zinc-300 hover:text-white transition-all duration-150 h-6"
+                            className="flex items-center gap-1.5 px-2 bg-surfaceHighlight hover:bg-surface border border-white/10 rounded-lg text-[10px] font-mono text-zinc-300 hover:text-white transition-all duration-150 h-6"
                         >
                             <GitBranch size={11} className="text-indigo-400 flex-shrink-0" />
                             <span className="truncate">{selectedBranch}</span>
@@ -322,11 +322,11 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
                                         left: branchMenuPos.left,
                                         transformOrigin: branchMenuPos.transformOrigin
                                     }}
-                                    className="branch-menu-dropdown w-[260px] max-w-[calc(100vw-2rem)] bg-[#121215] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col ring-1 ring-black/50"
+                                    className="branch-menu-dropdown w-[260px] max-w-[calc(100vw-2rem)] bg-surface border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col ring-1 ring-black/50"
                                     role="menu"
                                 >
-                                    <div className="p-2 border-b border-white/5 bg-[#0e0e11]">
-                                        <div className="flex items-center gap-2 bg-[#18181b] border border-white/5 rounded-lg px-2.5 py-1.5">
+                                    <div className="p-2 border-b border-white/5 bg-background">
+                                        <div className="flex items-center gap-2 bg-surfaceHighlight border border-white/5 rounded-lg px-2.5 py-1.5">
                                             <Search size={12} className="text-zinc-500" />
                                             <input
                                                 type="text"
@@ -379,8 +379,8 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
                             className={twMerge(
                                 "flex items-center justify-center rounded-lg transition-all duration-150 border h-6 w-6 aspect-square",
                                 isModeMenuOpen || sessionTitle
-                                    ? 'bg-[#2a2a2f] text-white border-white/15'
-                                    : 'bg-[#1f1f23] hover:bg-[#2a2a2f] text-zinc-400 hover:text-white border-white/10'
+                                    ? 'bg-surface text-white border-white/15'
+                                    : 'bg-surfaceHighlight hover:bg-surface text-zinc-400 hover:text-white border-white/10'
                             )}
                             title="Session Settings"
                         >
@@ -402,13 +402,13 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
                                         left: modeMenuPos.left,
                                         transformOrigin: modeMenuPos.transformOrigin
                                     }}
-                                    className="mode-menu-dropdown w-[280px] bg-[#121215] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 ring-1 ring-black/80 flex flex-col"
+                                    className="mode-menu-dropdown w-[280px] bg-surface border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 ring-1 ring-black/80 flex flex-col"
                                     role="menu"
                                 >
                                     {/* Section 1: Title Input */}
                                     <div className="p-3 border-b border-white/5">
                                         <label className="text-[10px] uppercase font-bold text-zinc-500 mb-1.5 block tracking-wider">Session Title</label>
-                                        <div className="flex items-center gap-2 bg-[#18181b] border border-white/5 rounded-lg px-2.5 py-1.5 focus-within:border-indigo-500/30 transition-colors">
+                                        <div className="flex items-center gap-2 bg-surfaceHighlight border border-white/5 rounded-lg px-2.5 py-1.5 focus-within:border-indigo-500/30 transition-colors">
                                             <Type size={12} className="text-zinc-500" />
                                             <input
                                                 type="text"
@@ -477,7 +477,7 @@ export const InputArea: React.FC<InputAreaProps> = memo(({
                                 "w-6 h-6 aspect-square flex items-center justify-center rounded-md transition-all duration-150 flex-shrink-0",
                                 input.trim()
                                     ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/25'
-                                    : 'bg-[#252529] text-zinc-500 cursor-not-allowed border border-white/5'
+                                    : 'bg-surfaceHighlight text-zinc-500 cursor-not-allowed border border-white/5'
                             )}
                         >
                             {isLoading ? (

@@ -36,7 +36,7 @@ export const Header: React.FC<HeaderProps> = ({
   );
 
   return (
-    <header className="flex items-center justify-between px-3 sm:px-4 py-1.5 pt-[calc(0.375rem+env(safe-area-inset-top))] sticky top-0 z-40 bg-[#0c0c0c]/90 backdrop-blur-xl border-b border-white/5 transition-all">
+    <header className="flex items-center justify-between px-3 sm:px-4 py-1.5 pt-[calc(0.375rem+env(safe-area-inset-top))] sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-white/5 transition-all">
       {/* Left Section: Sidebar Trigger & Repo Selector */}
       <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
         <button
@@ -51,9 +51,9 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="relative min-w-0" ref={repoRef}>
           <button
             onClick={() => setIsRepoOpen(!isRepoOpen)}
-            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 bg-[#1a1a1d] hover:bg-[#232326] border border-white/8 rounded-xl transition-all duration-200 group min-h-[36px] sm:min-h-[32px] max-w-[200px] sm:max-w-[400px]"
+            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 bg-surface hover:bg-surfaceHighlight border border-white/8 rounded-xl transition-all duration-200 group min-h-[36px] sm:min-h-[32px] max-w-[200px] sm:max-w-[400px]"
           >
-            <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-[#6366f1] to-[#4f46e5] flex items-center justify-center text-white flex-shrink-0 shadow-sm">
+            <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-primary flex items-center justify-center text-white flex-shrink-0 shadow-sm">
               <Command size={11} />
             </div>
             <div className="overflow-hidden flex-1 min-w-0">
@@ -65,9 +65,9 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {isRepoOpen && (
-            <div className="absolute top-full left-0 mt-2 w-[320px] max-w-[calc(100vw-2rem)] bg-[#121215] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200 flex flex-col ring-1 ring-black/50">
+            <div className="absolute top-full left-0 mt-2 w-[320px] max-w-[calc(100vw-2rem)] bg-surface border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200 flex flex-col ring-1 ring-black/50">
               <div className="p-3 border-b border-white/5">
-                <div className="flex items-center gap-2 bg-[#09090b] border border-white/5 rounded-lg px-3 py-2 focus-within:border-white/20 transition-colors">
+                <div className="flex items-center gap-2 bg-background border border-white/5 rounded-lg px-3 py-2 focus-within:border-white/20 transition-colors">
                   <Search size={14} className="text-zinc-500" />
                   <input
                     autoFocus
@@ -128,7 +128,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Moving Gradient Segment */}
         <div
-          className="absolute top-0 bottom-0 left-0 w-[40%] bg-gradient-to-r from-transparent via-[#818cf8] to-transparent rounded-full"
+          className="absolute top-0 bottom-0 left-0 w-[40%] bg-gradient-to-r from-transparent via-primary to-transparent rounded-full"
           style={{
             boxShadow: '0 0 10px 1px rgba(129, 140, 248, 0.4)',
             animation: 'flux-loading 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite'

@@ -15,13 +15,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --color-background: #2e2e36;
-      --color-surface: #3b3b44;
-      --color-surface-highlight: #464652;
-      --color-border: #6b7280;
+      --color-background: #0c0c0c;
+      --color-surface: #161619;
+      --color-surface-highlight: #27272a;
+      --color-border: #27272a;
       --color-primary: #A855F7;
-      --color-text-main: #F3F4F6;
-      --color-text-muted: #9CA3AF;
+      --color-text-main: #E4E4E7;
+      --color-text-muted: #A1A1AA;
     }
 
     body {
@@ -165,13 +165,13 @@
       theme: {
         extend: {
           colors: {
-            background: '#2e2e36',
-            surface: '#3b3b44', // Main card bg
-            surfaceHighlight: '#464652', // Slightly lighter surface
-            border: '#6b7280',
-            primary: '#A855F7', // Purple
-            textMain: '#F3F4F6',
-            textMuted: '#9CA3AF',
+            background: 'var(--color-background)',
+            surface: 'var(--color-surface)', // Main card bg
+            surfaceHighlight: 'var(--color-surface-highlight)', // Slightly lighter surface
+            border: 'var(--color-border)',
+            primary: 'var(--color-primary)', // Purple
+            textMain: 'var(--color-text-main)',
+            textMuted: 'var(--color-text-muted)',
           },
           typography: {
             DEFAULT: {

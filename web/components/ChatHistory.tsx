@@ -57,7 +57,7 @@ const MarkdownComponents = {
         // If there is a language match, treat as block code
         if (match) {
             return (
-                <div className="rounded-lg bg-[#000000]/40 border border-white/10 overflow-hidden my-3 w-full shadow-inner">
+                <div className="rounded-lg bg-background/40 border border-white/10 overflow-hidden my-3 w-full shadow-inner">
                     <div className="flex items-center justify-between px-3 py-1.5 bg-white/5 border-b border-white/5">
                         <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-wider">{match[1]}</span>
                     </div>
@@ -105,7 +105,7 @@ const UserMessageBubble: React.FC<{ text: string, time?: string }> = memo(({ tex
             <div className="flex flex-col items-end gap-1.5 max-w-[92%] sm:max-w-[85%] md:max-w-[80%] min-w-0">
                 <div
                     className={twMerge(
-                        "group relative bg-[#27272A] text-white border border-white/5 rounded-[20px] sm:rounded-[24px] px-4 py-3 sm:px-5 sm:py-3.5 text-[15px] leading-relaxed shadow-lg w-full",
+                        "group relative bg-surfaceHighlight text-white border border-white/5 rounded-[20px] sm:rounded-[24px] px-4 py-3 sm:px-5 sm:py-3.5 text-[15px] leading-relaxed shadow-lg w-full",
                         isLong && !isExpanded && "pb-8"
                     )}
                 >
@@ -123,7 +123,7 @@ const UserMessageBubble: React.FC<{ text: string, time?: string }> = memo(({ tex
 
                     {/* Gradient fade for truncated content */}
                     {isLong && !isExpanded && (
-                        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#27272A] to-transparent pointer-events-none rounded-b-[20px] sm:rounded-b-[24px]" />
+                        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-surfaceHighlight to-transparent pointer-events-none rounded-b-[20px] sm:rounded-b-[24px]" />
                     )}
 
                     {/* Expand/Collapse button inside bubble at bottom */}
@@ -157,7 +157,7 @@ const PlanStepItem: React.FC<{ step: Step, index: number }> = memo(({ step, inde
             className="flex flex-col gap-2 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group border border-transparent hover:border-white/5 select-none min-h-[44px]"
         >
             <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#18181B] border border-white/10 flex items-center justify-center text-[10px] font-mono text-zinc-500 group-hover:border-indigo-500/50 group-hover:text-indigo-300 transition-colors">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-surface border border-white/10 flex items-center justify-center text-[10px] font-mono text-zinc-500 group-hover:border-indigo-500/50 group-hover:text-indigo-300 transition-colors">
                     {index + 1}
                 </div>
                 <span className="text-sm font-medium text-zinc-200 group-hover:text-white flex-1 leading-snug truncate">
@@ -194,7 +194,7 @@ const CommandArtifact: React.FC<{ command: string, output?: string, exitCode?: n
         <div className="w-full min-w-0 max-w-[calc(100vw-4rem)] sm:max-w-xl md:max-w-2xl box-border">
             <div
                 className={twMerge(
-                    "font-mono text-xs bg-[#09090b] border rounded-xl overflow-hidden shadow-lg ring-1 transition-all w-full",
+                    "font-mono text-xs bg-background border rounded-xl overflow-hidden shadow-lg ring-1 transition-all w-full",
                     isFailed
                         ? "border-red-500/30 ring-red-500/10 hover:border-red-500/50"
                         : "border-white/10 ring-white/5 hover:border-white/20",
@@ -299,7 +299,7 @@ const CodeChangeArtifact: React.FC<{ changeSet?: any, defaultCollapsed?: boolean
         <div className="w-full min-w-0 max-w-[calc(100vw-4rem)] sm:max-w-xl md:max-w-2xl box-border">
             <div
                 className={twMerge(
-                    "bg-[#09090b] border border-white/10 rounded-xl overflow-hidden shadow-lg ring-1 ring-white/5 transition-all hover:border-white/20 w-full",
+                    "bg-background border border-white/10 rounded-xl overflow-hidden shadow-lg ring-1 ring-white/5 transition-all hover:border-white/20 w-full",
                     isExpanded ? "border-white/20" : ""
                 )}
             >
@@ -348,7 +348,7 @@ const CodeChangeArtifact: React.FC<{ changeSet?: any, defaultCollapsed?: boolean
                             transition={{ duration: 0.2 }}
                             className="w-full overflow-hidden"
                         >
-                            <div className="overflow-x-auto custom-scrollbar max-h-[500px] border-t border-white/5 bg-[#0d0d10] w-full">
+                            <div className="overflow-x-auto custom-scrollbar max-h-[500px] border-t border-white/5 bg-background w-full">
                                 <pre className="p-3 font-mono text-xs leading-relaxed w-max min-w-full">
                                     {changeSet.gitPatch.unidiffPatch.split('\n').map((line: string, i: number) => {
                                         let color = "text-zinc-400";
@@ -476,7 +476,7 @@ const PullRequestCard: React.FC<{ output: { pullRequest?: { url: string; title: 
     const branchUrl = getBranchUrl();
 
     return (
-        <div className="w-full min-w-0 max-w-[calc(100vw-4rem)] sm:max-w-md md:max-w-lg bg-gradient-to-br from-[#18181b] to-[#0f0f12] border border-white/10 rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/5 hover:ring-indigo-500/20 hover:border-indigo-500/30 transition-all duration-300 group/card relative box-border">
+        <div className="w-full min-w-0 max-w-[calc(100vw-4rem)] sm:max-w-md md:max-w-lg bg-gradient-to-br from-surface to-background border border-white/10 rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/5 hover:ring-indigo-500/20 hover:border-indigo-500/30 transition-all duration-300 group/card relative box-border">
             <div className="px-4 sm:px-5 py-3 sm:py-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02] rounded-t-xl gap-2">
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                     <div className="p-1.5 sm:p-2 bg-green-500/10 rounded-lg border border-green-500/20 shadow-inner shadow-green-500/5 flex-shrink-0">
@@ -590,7 +590,7 @@ const ActivityItem: React.FC<{
                 key="agent"
                 className="flex gap-3 sm:gap-5 justify-start group w-full overflow-hidden"
             >
-                <div className="w-8 h-8 rounded-full bg-[#18181B] flex-shrink-0 flex items-center justify-center border border-white/10 mt-1 shadow-sm">
+                <div className="w-8 h-8 rounded-full bg-surface flex-shrink-0 flex items-center justify-center border border-white/10 mt-1 shadow-sm">
                     <Bot size={18} className="text-indigo-400" />
                 </div>
                 <div className="min-w-0 flex-1 max-w-full sm:max-w-[90%] flex flex-col gap-1 overflow-hidden">
@@ -620,8 +620,8 @@ const ActivityItem: React.FC<{
                 className="flex gap-3 sm:gap-5 justify-start w-full min-w-0"
             >
                 <div className="w-8 h-8 flex-shrink-0" />
-                <div className="w-full min-w-0 max-w-[calc(100vw-4rem)] sm:max-w-xl bg-[#121215] border border-white/10 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/5">
-                    <div className="bg-[#18181B] px-5 py-3 border-b border-white/5 flex items-center justify-between">
+                <div className="w-full min-w-0 max-w-[calc(100vw-4rem)] sm:max-w-xl bg-surface border border-white/10 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/5">
+                    <div className="bg-surface px-5 py-3 border-b border-white/5 flex items-center justify-between">
                         <span className="text-sm font-medium text-white flex items-center gap-2">
                             <ListTodo size={16} className="text-indigo-400" />
                             Execution Plan
@@ -690,7 +690,7 @@ const ActivityItem: React.FC<{
                         className="flex gap-3 sm:gap-5 justify-start"
                     >
                         <div className="w-8 h-8 flex-shrink-0" />
-                        <div className="max-w-full sm:max-w-xl rounded-xl overflow-hidden border border-white/10 shadow-lg bg-[#0E0E11] group">
+                        <div className="max-w-full sm:max-w-xl rounded-xl overflow-hidden border border-white/10 shadow-lg bg-background group">
                             <div className="flex items-center justify-between px-3 py-2 bg-white/5 border-b border-white/5">
                                 <div className="flex items-center gap-2 text-xs text-zinc-400">
                                     <ImageIcon size={12} />
@@ -721,7 +721,7 @@ const ActivityItem: React.FC<{
                                     </a>
                                 </div>
                             </div>
-                            <div className="relative bg-[#18181b] flex justify-center p-2">
+                            <div className="relative bg-surfaceHighlight flex justify-center p-2">
                                 <img
                                     src={`data:${artifact.media.mimeType};base64,${artifact.media.data}`}
                                     alt="Jules generated artifact"
@@ -759,7 +759,7 @@ const ActivityItem: React.FC<{
 
         items.push(
             <div key="progress" className="flex gap-3 sm:gap-5 justify-start group w-full overflow-hidden">
-                <div className="w-8 h-8 rounded-full bg-[#18181B] flex-shrink-0 flex items-center justify-center border border-white/10 mt-1 shadow-sm">
+                <div className="w-8 h-8 rounded-full bg-surface flex-shrink-0 flex items-center justify-center border border-white/10 mt-1 shadow-sm">
                     <Bot size={18} className="text-indigo-400" />
                 </div>
                 <div className="min-w-0 flex-1 max-w-full sm:max-w-[90%] flex flex-col gap-1 overflow-hidden">
@@ -880,7 +880,7 @@ export const ChatHistory: React.FC<ChatHistoryProps> = memo(({ activities, isStr
 
                 {isStreaming && (
                     <div className="flex gap-3 sm:gap-5 justify-start w-full">
-                        <div className="w-8 h-8 rounded-full bg-[#18181B] flex-shrink-0 border border-white/10 flex items-center justify-center mt-1">
+                        <div className="w-8 h-8 rounded-full bg-surface flex-shrink-0 border border-white/10 flex items-center justify-center mt-1">
                             <Bot size={18} className="text-indigo-400 opacity-70" />
                         </div>
                         <div className="flex flex-col gap-3 w-full max-w-[90%] sm:max-w-[75%] pt-1.5">

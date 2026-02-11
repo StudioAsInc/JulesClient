@@ -196,7 +196,7 @@ const DrawerItemRow = ({
                                         />
                                         <div
                                             role="menu"
-                                            className="fixed z-[61] w-32 bg-[#18181b] border border-white/10 rounded-lg shadow-xl overflow-hidden py-1"
+                                            className="fixed z-[61] w-32 bg-surface border border-white/10 rounded-lg shadow-xl overflow-hidden py-1"
                                             style={{
                                                 top: document.getElementById(`menu-trigger-${session.name}`)?.getBoundingClientRect().bottom ?? 0,
                                                 left: (document.getElementById(`menu-trigger-${session.name}`)?.getBoundingClientRect().left ?? 0) - 100
@@ -447,7 +447,7 @@ export const Drawer: React.FC<DrawerProps> = ({
             />
 
             {/* Drawer */}
-            <div className={`fixed inset-y-0 left-0 w-[320px] bg-[#0E0E11] z-50 flex flex-col border-r border-white/5 transition-transform duration-300 ease-in-out ${isVisible ? 'translate-x-0' : '-translate-x-full'}`}>
+            <div className={`fixed inset-y-0 left-0 w-[320px] bg-background z-50 flex flex-col border-r border-white/5 transition-transform duration-300 ease-in-out ${isVisible ? 'translate-x-0' : '-translate-x-full'}`}>
 
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 pb-4 pt-[calc(1rem+env(safe-area-inset-top))] border-b border-white/5">
@@ -469,7 +469,7 @@ export const Drawer: React.FC<DrawerProps> = ({
                             placeholder="Search repositories & sessions..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-[#161619] border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500/50 focus:bg-[#1E1E22] transition-all"
+                            className="w-full bg-surface border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500/50 focus:bg-surfaceHighlight transition-all"
                         />
                     </div>
                 </div>
@@ -506,7 +506,7 @@ export const Drawer: React.FC<DrawerProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className="p-4 border-t border-white/5 bg-[#0E0E11]">
+                <div className="p-4 border-t border-white/5 bg-background">
                     <div className="mb-4">
                         <div className="flex justify-between items-end mb-2">
                             <span className="text-xs text-zinc-500">Daily session limit ({sessionsUsed}/{dailyLimit})</span>
@@ -520,14 +520,14 @@ export const Drawer: React.FC<DrawerProps> = ({
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <Link to="/settings" onClick={onClose} className="flex-1 flex items-center justify-center gap-2 bg-[#161619] hover:bg-[#1E1E22] border border-white/5 py-2 rounded-lg text-sm text-zinc-300 transition-colors">
+                        <Link to="/settings" onClick={onClose} className="flex-1 flex items-center justify-center gap-2 bg-surface hover:bg-surfaceHighlight border border-white/5 py-2 rounded-lg text-sm text-zinc-300 transition-colors">
                             <Settings size={14} />
                             Settings
                         </Link>
-                        <button aria-label="Documentation" className="w-10 h-10 flex items-center justify-center bg-[#161619] hover:bg-[#1E1E22] border border-white/5 rounded-lg text-zinc-400 hover:text-white transition-colors" title="Documentation">
+                        <button aria-label="Documentation" className="w-10 h-10 flex items-center justify-center bg-surface hover:bg-surfaceHighlight border border-white/5 rounded-lg text-zinc-400 hover:text-white transition-colors" title="Documentation">
                             <FileText size={18} />
                         </button>
-                        <button aria-label="Join Discord" className="w-10 h-10 flex items-center justify-center bg-[#161619] hover:bg-[#1E1E22] border border-white/5 rounded-lg text-zinc-400 hover:text-white transition-colors">
+                        <button aria-label="Join Discord" className="w-10 h-10 flex items-center justify-center bg-surface hover:bg-surfaceHighlight border border-white/5 rounded-lg text-zinc-400 hover:text-white transition-colors">
                             <Disc size={18} />
                         </button>
                     </div>

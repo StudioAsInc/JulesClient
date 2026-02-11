@@ -83,7 +83,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 const ActionButton: React.FC<{ icon: React.ReactNode; label: string; 'aria-label'?: string }> = ({ icon, label, 'aria-label': ariaLabel }) => (
     <button
         aria-label={ariaLabel || label}
-        className="flex items-center gap-2 px-3 py-1.5 bg-[#1E1E22] hover:bg-[#27272A] border border-white/10 hover:border-white/20 rounded-lg text-xs font-mono text-zinc-400 hover:text-white transition-all h-8 shadow-sm"
+        className="flex items-center gap-2 px-3 py-1.5 bg-surfaceHighlight hover:bg-surfaceHighlight border border-white/10 hover:border-white/20 rounded-lg text-xs font-mono text-zinc-400 hover:text-white transition-all h-8 shadow-sm"
     >
         {icon}
         <span>{label}</span>

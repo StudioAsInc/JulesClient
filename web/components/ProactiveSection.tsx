@@ -42,9 +42,9 @@ export const ProactiveSection: React.FC<ProactiveSectionProps> = ({ sessions = [
             </div>
 
             {/* Auto Find Issues Toggle Card - Improved Hierarchy */}
-            <div className="bg-[#161619] rounded-xl p-4 border border-white/5 flex flex-row items-center justify-between gap-4">
+            <div className="bg-surface rounded-xl p-4 border border-white/5 flex flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-3.5">
-                    <div className="w-10 h-10 rounded-full bg-[#1e1e22] border border-white/5 flex items-center justify-center text-indigo-400 flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-surfaceHighlight border border-white/5 flex items-center justify-center text-indigo-400 flex-shrink-0">
                         <Lightbulb size={20} />
                     </div>
                     <div className="flex flex-col">
@@ -89,7 +89,7 @@ export const ProactiveSection: React.FC<ProactiveSectionProps> = ({ sessions = [
                     {/* Active Session Card */}
                     <div
                         onClick={() => onSelectSession?.(runningSession)}
-                        className="bg-[#161619] rounded-xl p-4 border border-white/5 hover:border-white/10 transition-all cursor-pointer group shadow-sm"
+                        className="bg-surface rounded-xl p-4 border border-white/5 hover:border-white/10 transition-all cursor-pointer group shadow-sm"
                     >
                         <div className="flex items-start justify-between mb-3">
                             <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -146,7 +146,7 @@ const TabButton: React.FC<{ label: string; isActive: boolean; onClick: () => voi
         className={`
             px-4 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap flex-shrink-0
             ${isActive
-                ? 'bg-[#27272A] text-white border border-white/10 shadow-sm'
+                ? 'bg-surfaceHighlight text-white border border-white/10 shadow-sm'
                 : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}
         `}
     >
@@ -157,7 +157,7 @@ const TabButton: React.FC<{ label: string; isActive: boolean; onClick: () => voi
 const CategoryPill: React.FC<{ icon: React.ReactNode; label: string }> = ({ icon, label }) => (
     <button className="
         flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium border transition-all whitespace-nowrap
-        bg-[#161619] text-zinc-400 border-white/5 hover:bg-[#1E1E22] hover:text-zinc-200 hover:border-white/10 active:scale-95
+        bg-surface text-zinc-400 border-white/5 hover:bg-surfaceHighlight hover:text-zinc-200 hover:border-white/10 active:scale-95
     ">
         {icon}
         <span>{label}</span>

@@ -63,7 +63,7 @@ export const SessionView: React.FC<SessionViewProps> = ({
     return (
         <div className="flex-1 flex flex-col h-full relative overflow-hidden bg-background">
             {/* Session Breadcrumbs / Header - Fixed top */}
-            <div className="flex-shrink-0 px-4 py-2 sm:px-6 sm:py-3 border-b border-white/5 bg-[#0E0E11]/80 backdrop-blur-sm z-10 flex items-center gap-2 text-sm sticky top-0">
+            <div className="flex-shrink-0 px-4 py-2 sm:px-6 sm:py-3 border-b border-white/5 bg-surface/80 backdrop-blur-sm z-10 flex items-center gap-2 text-sm sticky top-0">
                 <Link to="/" className="text-zinc-500 hover:text-white transition-colors">Chat</Link>
                 <span className="text-zinc-700">/</span>
                 <span className="text-zinc-300 font-mono truncate max-w-xl">{session.title || session.name}</span>
@@ -102,7 +102,7 @@ export const SessionView: React.FC<SessionViewProps> = ({
             {/* Floating Bottom Input Area - Overlay */}
             <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none">
                 {/* Gradient fade to seamlessly blend scrolling content */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-[#0c0c0c] to-transparent" style={{ top: '-40px' }} />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background to-transparent" style={{ top: '-40px' }} />
 
                 {/* Actual Input Container */}
                 <div className="relative pointer-events-auto px-2 sm:px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4">
