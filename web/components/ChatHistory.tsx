@@ -190,6 +190,7 @@ PlanStepItem.displayName = 'PlanStepItem';
 
 const CommandArtifact: React.FC<{ command: string, output?: string, exitCode?: number, defaultCollapsed?: boolean }> = memo(({ command, output, exitCode, defaultCollapsed }) => {
     const [isExpanded, setIsExpanded] = useState(!defaultCollapsed);
+
     const isFailed = exitCode !== undefined && exitCode !== 0;
 
     return (
@@ -306,13 +307,11 @@ DiffRow.displayName = 'DiffRow';
 const CodeChangeArtifact: React.FC<{ changeSet?: any, defaultCollapsed?: boolean }> = memo(({ changeSet, defaultCollapsed }) => {
     const [isExpanded, setIsExpanded] = useState(!defaultCollapsed);
 
-    // Memoize lines
-    const lines = useMemo(() => {
-        if (!changeSet?.gitPatch?.unidiffPatch) return [];
-        return changeSet.gitPatch.unidiffPatch.split(String.fromCharCode(10));
+    const diffLines = useMemo(() => {
+        return changeSet?.gitPatch?.unidiffPatch?.split("\n") || [];
     }, [changeSet?.gitPatch?.unidiffPatch]);
 
-    if (!lines.length) return null;
+    if (!changeSet?.gitPatch?.unidiffPatch) return null;
 
     const getFileName = (patch: string) => {
         const match = patch.match(/^\+\+\+\s+(?:b\/)?(.+)$/m);
@@ -381,21 +380,29 @@ const CodeChangeArtifact: React.FC<{ changeSet?: any, defaultCollapsed?: boolean
                             transition={{ duration: 0.2 }}
                             className="w-full overflow-hidden"
                         >
-                            <div className="border-t border-white/5 bg-background w-full" style={{ height: listHeight }}>
-                                <AutoSizer disableHeight>
-                                    {({ width }) => (
-                                        <List
-                                            height={listHeight}
-                                            width={width}
-                                            itemCount={lines.length}
-                                            itemSize={itemSize}
-                                            itemData={lines}
-                                            className="custom-scrollbar"
-                                        >
-                                            {DiffRow}
-                                        </List>
-                                    )}
-                                </AutoSizer>
+                            <div className="overflow-x-auto custom-scrollbar max-h-[500px] border-t border-white/5 bg-background w-full">
+                                <pre className="p-3 font-mono text-xs leading-relaxed w-max min-w-full">
+                                    {diffLines.map((line: string, i: number) => {
+                                        let color = "text-zinc-400";
+                                        let bg = "transparent";
+
+                                        if (line.startsWith('+') && !line.startsWith('+++')) {
+                                            color = "text-green-400";
+                                            bg = "bg-green-500/5";
+                                        } else if (line.startsWith('-') && !line.startsWith('---')) {
+                                            color = "text-red-400";
+                                            bg = "bg-red-500/5";
+                                        } else if (line.startsWith('@@')) {
+                                            color = "text-indigo-400";
+                                        }
+
+                                        return (
+                                            <div key={i} className={`${bg} px-2 -mx-2`}>
+                                                <span className={`${color} whitespace-pre`}>{line}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </pre>
                             </div>
                         </motion.div>
                     )}
