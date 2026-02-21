@@ -858,8 +858,9 @@ fun CodeBlock(title: String, subtitle: String? = null, content: String, language
                         )
                 ) {
                     if (language == "diff") {
+                            val lines = remember(content) { content.split('\n') }
                         Column {
-                            content.split('\n').forEach { line ->
+                            lines.forEach { line ->
                                 val (textColor, bgColor) = when {
                                     line.startsWith('+') && !line.startsWith("+++") ->
                                         Color(0xFF4ADE80) to Color(0xFF22C55E).copy(alpha = 0.05f)
