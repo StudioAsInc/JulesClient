@@ -18,6 +18,8 @@ import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SmartToy
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -302,7 +304,7 @@ fun Drawer(
                                 .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(8.dp))
                         ) {
                             // Using generic icon for Docs
-                            Icon(Icons.Default.Search, null, tint = Color(0xFF9CA3AF), modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.Description, null, tint = Color(0xFF9CA3AF), modifier = Modifier.size(18.dp))
                         }
 
                          // Discord
@@ -315,7 +317,7 @@ fun Drawer(
                                 .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(8.dp))
                         ) {
                              // Using generic icon for Discord
-                            Icon(Icons.Default.SmartToy, null, tint = Color(0xFF9CA3AF), modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.Chat, null, tint = Color(0xFF9CA3AF), modifier = Modifier.size(18.dp))
                         }
                     }
                 }
@@ -397,7 +399,7 @@ fun SessionItem(
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Light,
                 color = if (isSelected) Color.White else Color(0xFFD4D4D8),
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
 
@@ -415,7 +417,7 @@ fun SessionItem(
                     text = displayInfo.helperText,
                     fontSize = 10.sp,
                     color = Color(0xFF52525B), // Zinc-600
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
 
@@ -435,7 +437,7 @@ fun SessionItem(
         Box {
              IconButton(
                 onClick = { menuExpanded = true },
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(40.dp)
             ) {
                 Icon(
                     Icons.Default.MoreHoriz,
@@ -493,7 +495,7 @@ fun SourceItem(
                 text = source.displayName ?: source.name.split("/").takeLast(2).joinToString("/"),
                 fontSize = 14.sp,
                 color = if (isSelected) Color.White else Color(0xFFA1A1AA),
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
         }
