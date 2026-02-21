@@ -254,7 +254,7 @@ fun InputArea(
                         placeholder = {
                             Text(
                                 placeholderText,
-                                color = Color.Gray,
+                                color = Color(0xFFA1A1AA),
                                 modifier = Modifier.animateContentSize()
                             )
                         },
@@ -383,7 +383,7 @@ fun InputArea(
                             ) {
                                 Column(modifier = Modifier.padding(12.dp)) {
                                     // Session Title
-                                    Text("SESSION TITLE", fontSize = 10.sp, color = Color.Gray, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                                    Text("SESSION TITLE", fontSize = 10.sp, color = Color(0xFFA1A1AA), fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                                     Spacer(modifier = Modifier.height(6.dp))
                                     OutlinedTextField(
                                         value = sessionTitle,
@@ -402,7 +402,7 @@ fun InputArea(
                                     Spacer(modifier = Modifier.height(16.dp))
 
                                     // Session Mode
-                                    Text("SESSION MODE", fontSize = 10.sp, color = Color.Gray, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                                    Text("SESSION MODE", fontSize = 10.sp, color = Color(0xFFA1A1AA), fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                                     Spacer(modifier = Modifier.height(6.dp))
 
                                     val modes = listOf(

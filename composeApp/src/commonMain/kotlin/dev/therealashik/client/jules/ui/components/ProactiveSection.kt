@@ -46,8 +46,8 @@ fun ProactiveSection(
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // Tabs
         Row(
@@ -72,7 +72,11 @@ fun ProactiveSection(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
                     Box(
                         modifier = Modifier
                             .size(40.dp)
@@ -138,7 +142,11 @@ fun ProactiveSection(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.weight(1f)) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                modifier = Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Box(
                                     modifier = Modifier
                                         .size(32.dp)
@@ -149,12 +157,10 @@ fun ProactiveSection(
                                     Icon(Icons.Default.RocketLaunch, contentDescription = null, tint = Color(0xFF818CF8), modifier = Modifier.size(16.dp))
                                 }
                                 Text(
-                                    runningSession.title ?: "Untitled Session",
+                                    (runningSession.title ?: "Untitled Session").replace("##", "").trim(),
                                     color = Color(0xFFE4E4E7),
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    maxLines = 1,
-                                    modifier = Modifier.padding(top = 4.dp)
+                                    style = MaterialTheme.typography.titleMedium,
+                                    maxLines = 1
                                 )
                             }
                             Icon(Icons.Default.MoreHoriz, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
@@ -221,6 +227,7 @@ fun CategoryPill(icon: androidx.compose.ui.graphics.vector.ImageVector, text: St
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
+            .height(48.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(8.dp))

@@ -94,7 +94,7 @@ fun HomeView(
                     onSendMessage = onSendMessage,
                     isLoading = isProcessing,
                     currentSource = currentSource,
-                    modifier = Modifier.padding(bottom = 32.dp)
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
 
                 if (error != null) {
@@ -153,6 +153,7 @@ fun HomeView(
 fun ActionButton(icon: ImageVector, label: String, onClick: (() -> Unit)? = null) {
     Row(
         modifier = Modifier
+            .height(40.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(Color(0xFF1E1E22))
             .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
