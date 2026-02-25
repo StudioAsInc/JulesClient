@@ -7,7 +7,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 
 interface JulesApi {
     fun setApiKey(key: String)
@@ -73,7 +73,16 @@ object GeminiService {
         }
 
         if (response.status.value !in 200..299) {
-             throw Exception("API Error: ${response.status} - ${response.body<String>()}")
+            val errorBody = response.body<String>()
+            val errorMessage = try {
+                val element = Json { ignoreUnknownKeys = true }.decodeFromString<JsonElement>(errorBody)
+                // Attempt to find error message in standard Google API format: { "error": { "message": "..." } }
+                element.jsonObject["error"]?.jsonObject?.get("message")?.jsonPrimitive?.content
+            } catch (e: Exception) {
+                null
+            }
+
+            throw Exception("API Error: ${response.status}${if (errorMessage != null) " - $errorMessage" else ""}")
         }
 
         return response.body()
