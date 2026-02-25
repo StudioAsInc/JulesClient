@@ -61,7 +61,11 @@ export function useJulesSession(
                     ? { createTime: lastActivity.createTime }
                     : undefined;
 
-                const response = await JulesApi.listActivities(sessionId, options);
+                const [response, sess] = await Promise.all([
+                    JulesApi.listActivities(sessionId, options),
+                    JulesApi.getSession(sessionName)
+                ]);
+
                 if (activePollingSession.current !== sessionName) return;
 
                 const newActivities = response.activities;
@@ -80,10 +84,6 @@ export function useJulesSession(
                     // Initial load returned empty
                     setActivities([]);
                 }
-
-                // Also check session status for outputs and state
-                const sess = await JulesApi.getSession(sessionName);
-                if (activePollingSession.current !== sessionName) return;
 
                 setCurrentSession(prev => {
                     // Only update if state has changed to avoid unnecessary re-renders
