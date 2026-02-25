@@ -22,9 +22,13 @@ export default function App() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Initialize API key from local storage
+    // Initialize API key from local storage or environment
     useEffect(() => {
-        const key = localStorage.getItem('jules_api_key');
+        // Check environment variables first (injected by Vite)
+        const envKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
+        const storedKey = localStorage.getItem('jules_api_key');
+        const key = envKey || storedKey;
+
         if (key) {
             setApiKey(key);
             JulesApi.setApiKey(key);
