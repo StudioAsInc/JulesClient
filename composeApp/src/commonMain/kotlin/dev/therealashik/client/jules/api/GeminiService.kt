@@ -8,6 +8,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import dev.therealashik.client.jules.utils.toJsonObject
 
 interface JulesApi {
     fun setApiKey(key: String)
@@ -155,31 +156,13 @@ object GeminiService {
     }
 
     suspend fun updateSession(sessionName: String, updates: Map<String, Any?>, updateMask: List<String>): JulesSession {
-        // Note: Generic map for updates is tricky with strict serialization.
-        // For now, let's assume we are updating specific fields or use a partial object if possible.
-        // But since we need to send a PATCH with an update mask, we might need a custom serializer or just a raw map if JSON element.
-        // To keep it simple and type-safe, let's just support Title update for now as that's the main use case?
-        // Actually, let's accept a JsonObject equivalent or just the Map if the serializer handles it.
-        // However, `kotlinx.serialization` doesn't serialize Map<String, Any> easily without polymorphic setup.
-        // For this specific requirement, we'll implement a `UpdateSessionRequest` if we knew the fields.
-        // Let's implement a specific method for updating title/state if needed, or use a workaround.
-        // The Web app uses `updates: Partial<JulesSession>`.
+        val cleanName = if (sessionName.startsWith("sessions/")) sessionName else "sessions/$sessionName"
+        val query = if (updateMask.isNotEmpty()) "?updateMask=${updateMask.joinToString(",")}" else ""
+        val url = "$BASE_URL/$cleanName$query"
 
-        // workaround: Since we don't have a `PartialJulesSession`, we will skip full implementation of arbitrary updates
-        // and focus on what's usually updated (priority, state?).
-        // If the Master Directive requires "updateSession", I'll implement a limited version or use `JsonElement`.
+        val jsonBody = updates.toJsonObject()
 
-        // Better approach: Use JsonObject from kotlinx.serialization
-        // But for now, I will throw Not Implemented or implement a specific one if I see usage.
-        // The directive said: "updateSession(sessionId: String, ...)"
-        // I will implement it taking a generic map and serializing it manually to string for the body to avoid type issues.
-
-        // Actually, let's define a UpdateSessionPayload class locally if needed.
-        // Or just use the URL parameters? No, body is needed.
-
-        // Let's just implement `delete` and `approve` robustly first. Update is less critical for the core flow.
-        // BUT, I'll add the signature.
-        throw NotImplementedError("Generic Update Session not yet implemented fully in KMP")
+        return authRequest(url, HttpMethod.Patch, jsonBody)
     }
 
     suspend fun deleteSession(sessionName: String) {
