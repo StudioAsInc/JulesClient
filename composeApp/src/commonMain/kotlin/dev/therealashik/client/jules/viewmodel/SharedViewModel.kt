@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -100,9 +101,9 @@ class SharedViewModel(
 
                 // Execute network calls on IO dispatcher
                 val (sourcesResp, allSessions) = withContext(Dispatchers.IO) {
-                    val src = api.listSources()
-                    val sess = api.listAllSessions()
-                    src to sess
+                    val srcDeferred = async { api.listSources() }
+                    val sessDeferred = async { api.listAllSessions() }
+                    srcDeferred.await() to sessDeferred.await()
                 }
 
                 // Auto-select first source if none selected
