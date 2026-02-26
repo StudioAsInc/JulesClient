@@ -8,6 +8,15 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.sqldelight)
+}
+
+sqldelight {
+    databases {
+        create("JulesDatabase") {
+            packageName.set("dev.therealashik.client.jules.db")
+        }
+    }
 }
 
 kotlin {
@@ -35,6 +44,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.androidx.security.crypto)
+            implementation(libs.sqldelight.android)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -51,6 +61,9 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.kotlinx.serialization.json)
+
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.coroutines)
 
             // New Dependencies (Phase 2 Upgrade)
             implementation(libs.coil.compose)
@@ -69,6 +82,12 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
             implementation(libs.ktor.client.cio)
+            implementation(libs.sqldelight.sqlite)
+        }
+        val iosMain by creating {
+            dependencies {
+                implementation(libs.sqldelight.native)
+            }
         }
     }
 }

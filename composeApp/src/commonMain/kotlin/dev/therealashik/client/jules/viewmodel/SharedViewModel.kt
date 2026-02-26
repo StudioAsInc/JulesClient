@@ -5,8 +5,14 @@ import androidx.lifecycle.viewModelScope
 import dev.therealashik.client.jules.Settings
 import dev.therealashik.client.jules.api.JulesApi
 import dev.therealashik.client.jules.api.RealJulesApi
+import dev.therealashik.client.jules.data.JulesData
+import dev.therealashik.client.jules.data.JulesRepository
 import dev.therealashik.client.jules.model.*
 import dev.therealashik.client.jules.ui.ThemePreset
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.Instant
+import kotlinx.datetime.minus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
@@ -14,13 +20,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.Instant
-import kotlinx.datetime.minus
 
 // ==================== UI STATE ====================
 
@@ -51,13 +55,37 @@ data class JulesUiState(
 // ==================== VIEW MODEL ====================
 
 class SharedViewModel(
-    private val api: JulesApi = RealJulesApi
+    private val api: JulesApi = RealJulesApi,
+    private val repository: JulesRepository = JulesData.repository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(JulesUiState())
     val uiState: StateFlow<JulesUiState> = _uiState.asStateFlow()
 
     private var pollJob: Job? = null
+    private var activitiesJob: Job? = null
+
+    init {
+        // Observe sessions and sources from DB
+        repository.sessions.onEach { sessions ->
+            _uiState.update {
+                it.copy(
+                    sessions = sessions,
+                    sessionsUsed = calculateSessionsUsed(sessions)
+                )
+            }
+        }.launchIn(viewModelScope)
+
+        repository.sources.onEach { sources ->
+            _uiState.update {
+                val current = it.currentSource ?: sources.firstOrNull()
+                it.copy(
+                    sources = sources,
+                    currentSource = current
+                )
+            }
+        }.launchIn(viewModelScope)
+    }
 
     // --- Initialization ---
 
@@ -89,34 +117,25 @@ class SharedViewModel(
              _uiState.update { it.copy(apiKey = savedKey) }
         }
 
+        _uiState.update { it.copy(defaultCardState = savedCardState, currentTheme = savedTheme) }
+
+        if (api.getApiKey().isBlank()) {
+             return
+        }
+
+        refreshAll()
+    }
+
+    private fun refreshAll() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, defaultCardState = savedCardState, currentTheme = savedTheme) }
+            _uiState.update { it.copy(isLoading = true) }
             try {
-                // If no key, don't try to fetch data yet
-                if (api.getApiKey().isBlank()) {
-                     _uiState.update { it.copy(isLoading = false) }
-                     return@launch
-                }
-
-                // Execute network calls on IO dispatcher
-                val (sourcesResp, allSessions) = withContext(Dispatchers.IO) {
-                    val src = api.listSources()
-                    val sess = api.listAllSessions()
-                    src to sess
-                }
-
-                // Auto-select first source if none selected
-                val firstSource = sourcesResp.sources.firstOrNull()
-
-                _uiState.update {
-                    it.copy(
-                        sources = sourcesResp.sources,
-                        currentSource = it.currentSource ?: firstSource,
-                        sessions = allSessions,
-                        sessionsUsed = calculateSessionsUsed(allSessions),
-                        isLoading = false
-                    )
-                }
+                // Trigger refresh in background
+                val sourcesJob = launch { repository.refreshSources() }
+                val sessionsJob = launch { repository.refreshSessions() }
+                sourcesJob.join()
+                sessionsJob.join()
+                _uiState.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message, isLoading = false) }
             }
@@ -156,6 +175,13 @@ class SharedViewModel(
                 activities = emptyList() // Clear old activities immediately
             )
         }
+
+        // Observe activities for this session
+        activitiesJob?.cancel()
+        activitiesJob = repository.getActivities(session.name).onEach { activities ->
+            _uiState.update { it.copy(activities = activities) }
+        }.launchIn(viewModelScope)
+
         startPolling(session.name)
     }
 
@@ -165,6 +191,7 @@ class SharedViewModel(
                 is Screen.Session, is Screen.Repository, is Screen.Settings -> {
                     // Stop polling when leaving session
                     stopPolling()
+                    activitiesJob?.cancel()
                     state.copy(currentScreen = Screen.Home, currentSession = null)
                 }
                 else -> state // Already at home or can't go back
@@ -179,30 +206,15 @@ class SharedViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isProcessing = true, error = null) }
             try {
-                val session = withContext(Dispatchers.IO) {
-                    api.createSession(
-                        prompt = prompt,
-                        sourceName = source.name,
-                        title = config.title,
-                        requirePlanApproval = config.requirePlanApproval,
-                        automationMode = config.automationMode,
-                        startingBranch = config.startingBranch
-                    )
-                }
+                val session = repository.createSession(prompt, config, source)
 
-                // Prepend new session
-                val updatedSessions = listOf(session) + _uiState.value.sessions
+                // Select the new session
+                // Note: sessions list will update via flow automatically
+                selectSession(session)
 
                 _uiState.update {
-                    it.copy(
-                        sessions = updatedSessions,
-                        sessionsUsed = calculateSessionsUsed(updatedSessions),
-                        currentSession = session,
-                        currentScreen = Screen.Session(session.name),
-                        isProcessing = false // Polling will take over
-                    )
+                    it.copy(isProcessing = false)
                 }
-                startPolling(session.name)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = "Failed to create: ${e.message}", isProcessing = false) }
             }
@@ -214,11 +226,8 @@ class SharedViewModel(
         viewModelScope.launch {
              _uiState.update { it.copy(isProcessing = true, error = null) }
              try {
-                 withContext(Dispatchers.IO) {
-                     api.sendMessage(session.name, text)
-                 }
-                 // Force immediate refresh
-                 refreshSession(session.name)
+                 repository.sendMessage(session.name, text)
+                 // Processing status will be updated via polling/refresh
              } catch (e: Exception) {
                  _uiState.update { it.copy(error = "Failed to send: ${e.message}", isProcessing = false) }
              }
@@ -229,10 +238,7 @@ class SharedViewModel(
          viewModelScope.launch {
              _uiState.update { it.copy(isProcessing = true) }
              try {
-                 withContext(Dispatchers.IO) {
-                     api.approvePlan(sessionId, planId)
-                 }
-                 refreshSession(sessionId)
+                 repository.approvePlan(sessionId, planId)
              } catch (e: Exception) {
                   _uiState.update { it.copy(error = "Failed to approve: ${e.message}", isProcessing = false) }
              }
@@ -242,17 +248,7 @@ class SharedViewModel(
     fun deleteSession(sessionId: String) {
         viewModelScope.launch {
             try {
-                withContext(Dispatchers.IO) {
-                    api.deleteSession(sessionId)
-                }
-                val updatedSessions = _uiState.value.sessions.filter { it.name != sessionId }
-
-                _uiState.update {
-                    it.copy(
-                        sessions = updatedSessions,
-                        sessionsUsed = calculateSessionsUsed(updatedSessions)
-                    )
-                }
+                repository.deleteSession(sessionId)
 
                 // If we are in the deleted session, go home
                 if (_uiState.value.currentSession?.name == sessionId) {
@@ -272,8 +268,6 @@ class SharedViewModel(
     // --- Internals ---
 
     private fun calculateSessionsUsed(sessions: List<JulesSession>): Int {
-        // Temporarily simplified to avoid Clock issues if any, but re-enabling safe try-catch
-        /*
         try {
             val now = Clock.System.now()
             val twentyFourHoursAgo = now.minus(24, DateTimeUnit.HOUR)
@@ -288,8 +282,6 @@ class SharedViewModel(
         } catch (e: Exception) {
             return sessions.size
         }
-        */
-        return sessions.size
     }
 
     private fun stopPolling() {
@@ -312,12 +304,11 @@ class SharedViewModel(
             // Check if we are still looking at this session
             if (_uiState.value.currentSession?.name != sessionName) return
 
-            // Parallel fetch could be better but sequential is safer for now
-            val (activitiesResp, session) = withContext(Dispatchers.IO) {
-                val act = api.listActivities(sessionName)
-                val sess = api.getSession(sessionName)
-                act to sess
-            }
+            // Refresh activities and session details
+            repository.refreshActivities(sessionName)
+
+            // Get updated session from repository (it should be cached now)
+            val session = repository.getSession(sessionName) ?: return
 
             val isProcessing = session.state == SessionState.QUEUED ||
                                session.state == SessionState.PLANNING ||
@@ -328,13 +319,8 @@ class SharedViewModel(
             }
 
             _uiState.update { state ->
-                // Update session in the main list too if changed
-                val updatedList = state.sessions.map { if (it.name == session.name) session else it }
-
                 state.copy(
-                    activities = activitiesResp.activities,
                     currentSession = session,
-                    sessions = updatedList,
                     isProcessing = isProcessing
                 )
             }

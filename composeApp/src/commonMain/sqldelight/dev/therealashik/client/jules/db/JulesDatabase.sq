@@ -1,0 +1,51 @@
+CREATE TABLE sourceEntity (
+  name TEXT NOT NULL PRIMARY KEY,
+  json_blob TEXT NOT NULL
+);
+
+CREATE TABLE sessionEntity (
+  name TEXT NOT NULL PRIMARY KEY,
+  json_blob TEXT NOT NULL,
+  updated_at TEXT
+);
+
+CREATE TABLE activityEntity (
+  name TEXT NOT NULL PRIMARY KEY,
+  session_name TEXT NOT NULL,
+  json_blob TEXT NOT NULL,
+  create_time TEXT,
+  FOREIGN KEY(session_name) REFERENCES sessionEntity(name) ON DELETE CASCADE
+);
+
+selectAllSources:
+SELECT * FROM sourceEntity;
+
+insertSource:
+INSERT OR REPLACE INTO sourceEntity(name, json_blob) VALUES (?, ?);
+
+deleteAllSources:
+DELETE FROM sourceEntity;
+
+selectAllSessions:
+SELECT * FROM sessionEntity ORDER BY updated_at DESC;
+
+getSession:
+SELECT * FROM sessionEntity WHERE name = ?;
+
+insertSession:
+INSERT OR REPLACE INTO sessionEntity(name, json_blob, updated_at) VALUES (?, ?, ?);
+
+deleteSession:
+DELETE FROM sessionEntity WHERE name = ?;
+
+deleteAllSessions:
+DELETE FROM sessionEntity;
+
+selectActivitiesForSession:
+SELECT * FROM activityEntity WHERE session_name = ? ORDER BY create_time ASC;
+
+insertActivity:
+INSERT OR REPLACE INTO activityEntity(name, session_name, json_blob, create_time) VALUES (?, ?, ?, ?);
+
+deleteAllActivitiesForSession:
+DELETE FROM activityEntity WHERE session_name = ?;
