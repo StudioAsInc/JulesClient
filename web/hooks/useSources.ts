@@ -1,19 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
-import * as JulesApi from '../services/geminiService';
+import { GeminiService } from '../services/geminiService';
 import { JulesSource } from '../types';
 
-export function useSources(apiKey: string | null) {
+export function useSources(service: GeminiService | null) {
     const [sources, setSources] = useState<JulesSource[]>([]);
     const [currentSource, setCurrentSource] = useState<JulesSource | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const fetchSources = useCallback(async () => {
-        if (!apiKey) return;
+        if (!service) return;
         setIsLoading(true);
         setError(null);
         try {
-            const response = await JulesApi.listSources();
+            const response = await service.listSources();
             setSources(response.sources);
 
             // Default to first source if none selected
@@ -30,13 +30,13 @@ export function useSources(apiKey: string | null) {
         } finally {
             setIsLoading(false);
         }
-    }, [apiKey]);
+    }, [service]);
 
     useEffect(() => {
-        if (apiKey) {
+        if (service) {
             fetchSources();
         }
-    }, [apiKey, fetchSources]);
+    }, [service, fetchSources]);
 
     return {
         sources,

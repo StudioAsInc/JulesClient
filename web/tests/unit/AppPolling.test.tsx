@@ -2,19 +2,28 @@ import React from 'react';
 import { render, waitFor, act, screen } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import App from '../../App';
-import * as JulesApi from '../../services/geminiService';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '../../contexts/ThemeContext';
 
+// Define mocks
+const mockListSources = vi.fn();
+const mockListAllSessions = vi.fn();
+const mockGetSession = vi.fn();
+const mockListActivities = vi.fn();
+
 // Mock the API
-vi.mock('../../services/geminiService', () => ({
-    setApiKey: vi.fn(),
-    setPaginationSettings: vi.fn(),
-    listSources: vi.fn(),
-    listAllSessions: vi.fn(),
-    getSession: vi.fn(),
-    listActivities: vi.fn(),
-}));
+vi.mock('../../services/geminiService', () => {
+    return {
+        GeminiService: vi.fn(function() {
+            return {
+                listSources: mockListSources,
+                listAllSessions: mockListAllSessions,
+                getSession: mockGetSession,
+                listActivities: mockListActivities,
+            };
+        })
+    };
+});
 
 // Mock scrollIntoView
 window.HTMLElement.prototype.scrollIntoView = vi.fn();
@@ -43,8 +52,8 @@ describe('App Polling Logic', () => {
 
         // Setup default mocks
         localStorageMock.setItem('jules_api_key', 'test-key');
-        (JulesApi.listSources as any).mockResolvedValue({ sources: [] });
-        (JulesApi.listAllSessions as any).mockResolvedValue([]);
+        mockListSources.mockResolvedValue({ sources: [] });
+        mockListAllSessions.mockResolvedValue([]);
     });
 
     it('should stop polling when session is COMPLETED', async () => {
@@ -56,8 +65,8 @@ describe('App Polling Logic', () => {
             prompt: 'test',
         };
 
-        (JulesApi.getSession as any).mockResolvedValue(completedSession);
-        (JulesApi.listActivities as any).mockResolvedValue({ activities: [] });
+        mockGetSession.mockResolvedValue(completedSession);
+        mockListActivities.mockResolvedValue({ activities: [] });
 
         // Render App with a route that triggers session loading
         render(
@@ -70,10 +79,10 @@ describe('App Polling Logic', () => {
 
         // Wait for initial load
         await waitFor(() => {
-            expect(JulesApi.getSession).toHaveBeenCalledWith(sessionName);
+            expect(mockGetSession).toHaveBeenCalledWith(sessionName);
         }, { timeout: 3000 });
 
-        const initialCallCount = (JulesApi.getSession as any).mock.calls.length;
+        const initialCallCount = mockGetSession.mock.calls.length;
 
         // Wait for polling interval (2s) + some buffer
         // Using real timers means we just wait
@@ -87,11 +96,7 @@ describe('App Polling Logic', () => {
         // Then poll checks state -> COMPLETED -> Stops.
         // So count should remain equal to initialCallCount (which captures up to step 2 usually, or close to it).
 
-        // Wait, initialCallCount was captured AFTER initial load.
-        // Let's rely on absolute numbers if possible or just equality.
-        // If initialCallCount captured the first poll call, then it should stay there.
-
-        expect((JulesApi.getSession as any).mock.calls.length).toBe(initialCallCount);
+        expect(mockGetSession.mock.calls.length).toBe(initialCallCount);
     }, 10000);
 
     it('should stop polling when session is FAILED', async () => {
@@ -103,8 +108,8 @@ describe('App Polling Logic', () => {
             prompt: 'test',
         };
 
-        (JulesApi.getSession as any).mockResolvedValue(failedSession);
-        (JulesApi.listActivities as any).mockResolvedValue({ activities: [] });
+        mockGetSession.mockResolvedValue(failedSession);
+        mockListActivities.mockResolvedValue({ activities: [] });
 
         render(
             <ThemeProvider>
@@ -115,15 +120,15 @@ describe('App Polling Logic', () => {
         );
 
         await waitFor(() => {
-            expect(JulesApi.getSession).toHaveBeenCalledWith(sessionName);
+            expect(mockGetSession).toHaveBeenCalledWith(sessionName);
         }, { timeout: 3000 });
 
-        const initialCallCount = (JulesApi.getSession as any).mock.calls.length;
+        const initialCallCount = mockGetSession.mock.calls.length;
 
         await act(async () => {
             await new Promise(r => setTimeout(r, 2500));
         });
 
-        expect((JulesApi.getSession as any).mock.calls.length).toBe(initialCallCount);
+        expect(mockGetSession.mock.calls.length).toBe(initialCallCount);
     }, 10000);
 });

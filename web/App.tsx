@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Header } from './components/Header';
 import { HomeView } from './components/HomeView';
@@ -7,7 +7,7 @@ import { RepositoryView } from './components/RepositoryView';
 import { SettingsView } from './components/SettingsView';
 import { Drawer } from './components/Drawer';
 import { LoginScreen } from './components/LoginScreen';
-import * as JulesApi from './services/geminiService';
+import { GeminiService } from './services/geminiService';
 import { useTheme } from './contexts/ThemeContext';
 import { useSources } from './hooks/useSources';
 import { useJulesSession } from './hooks/useJulesSession';
@@ -17,13 +17,17 @@ export default function App() {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     // Get settings from theme context
-    const { defaultCardCollapsed } = useTheme();
+    const { defaultCardCollapsed, pagination } = useTheme();
 
     const navigate = useNavigate();
     const location = useLocation();
 
+    const geminiService = useMemo(() => {
+        return apiKey ? new GeminiService(apiKey, pagination) : null;
+    }, [apiKey, pagination]);
+
     // Initialize API key from local storage or environment
-    useEffect(() => {
+    useEffect(() {
         // Check environment variables first (injected by Vite)
         const envKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
         const storedKey = localStorage.getItem('jules_api_key');
@@ -31,14 +35,12 @@ export default function App() {
 
         if (key) {
             setApiKey(key);
-            JulesApi.setApiKey(key);
         }
     }, []);
 
     const handleSetKey = (key: string) => {
         localStorage.setItem('jules_api_key', key);
         setApiKey(key);
-        JulesApi.setApiKey(key);
     };
 
     // Custom Hooks
@@ -48,7 +50,7 @@ export default function App() {
         setCurrentSource,
         isLoading: isSourcesLoading,
         error: sourceError
-    } = useSources(apiKey);
+    } = useSources(geminiService);
 
     const {
         currentSession,
@@ -67,7 +69,7 @@ export default function App() {
         handleSelectSession,
         handleDeleteSession,
         handleUpdateSession
-    } = useJulesSession(apiKey, currentSource, navigate);
+    } = useJulesSession(geminiService, currentSource, navigate);
 
     // Combined processing state
     const isProcessing = isSessionProcessing || isSourcesLoading;
@@ -83,7 +85,7 @@ export default function App() {
                 const sessName = `sessions/${pathParts[2]}`;
                 if (!currentSession || currentSession.name !== sessName) {
                     try {
-                        const sess = await JulesApi.getSession(sessName);
+                        const sess = await geminiService.getSession(sessName);
                         setCurrentSession(sess);
                         startPolling(sess.name);
                     } catch (e) {
@@ -105,7 +107,7 @@ export default function App() {
         };
 
         if (apiKey) syncWithUrl();
-    }, [location.pathname, apiKey, sources.length]); // Dependencies adapted from original
+    }, [location.pathname, apiKey, sources.length, geminiService]); // Dependencies adapted from original
 
     const handleSessionMessage = useCallback((text: string) => {
         handleSendMessage(text, { mode: 'START' });

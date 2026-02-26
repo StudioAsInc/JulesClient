@@ -8,7 +8,6 @@ import {
     isValidThemeSettings,
     isValidTheme
 } from '../types/themeTypes';
-import * as JulesApi from '../services/geminiService';
 
 const STORAGE_KEY = 'jules_theme_settings';
 
@@ -63,13 +62,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         applyThemeToDOM(settings.theme);
     }, [settings.theme]);
-
-    // Sync pagination settings with API service
-    useEffect(() => {
-        if (settings.pagination) {
-            JulesApi.setPaginationSettings(settings.pagination);
-        }
-    }, [settings.pagination]);
 
     // Persist settings to localStorage
     useEffect(() => {
