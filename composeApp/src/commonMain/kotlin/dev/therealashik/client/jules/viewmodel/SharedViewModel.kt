@@ -131,12 +131,31 @@ class SharedViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                // Trigger refresh in background
-                val sourcesJob = launch { repository.refreshSources() }
-                val sessionsJob = launch { repository.refreshSessions() }
-                sourcesJob.join()
-                sessionsJob.join()
-                _uiState.update { it.copy(isLoading = false) }
+                // If no key, don't try to fetch data yet
+                if (api.getApiKey().isBlank()) {
+                     _uiState.update { it.copy(isLoading = false) }
+                     return@launch
+                }
+
+                // Execute network calls on IO dispatcher
+                val (sourcesResp, allSessions) = withContext(Dispatchers.IO) {
+                    val srcDeferred = async { api.listSources() }
+                    val sessDeferred = async { api.listAllSessions() }
+                    srcDeferred.await() to sessDeferred.await()
+                }
+
+                // Auto-select first source if none selected
+                val firstSource = sourcesResp.sources.firstOrNull()
+
+                _uiState.update {
+                    it.copy(
+                        sources = sourcesResp.sources,
+                        currentSource = it.currentSource ?: firstSource,
+                        sessions = allSessions,
+                        sessionsUsed = calculateSessionsUsed(allSessions),
+                        isLoading = false
+                    )
+                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message, isLoading = false) }
             }
