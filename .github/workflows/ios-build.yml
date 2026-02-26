@@ -1,0 +1,35 @@
+name: iOS Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build KMP Framework
+      run: ./gradlew :composeApp:embedAndSignAppleFrameworkForXcode
+
+    - name: Build iOS App (Simulator)
+      run: |
+        xcodebuild -project iosApp/iosApp.xcodeproj \
+          -scheme iosApp \
+          -sdk iphonesimulator \
+          -destination 'platform=iOS Simulator,name=iPhone 15' \
+          clean build \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          NO_SIGNING_CHECK=YES
