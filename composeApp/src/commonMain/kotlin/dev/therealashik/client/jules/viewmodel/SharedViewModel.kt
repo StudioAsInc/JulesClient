@@ -311,7 +311,7 @@ class SharedViewModel(
             // Check if we are still looking at this session
             if (_uiState.value.currentSession?.name != sessionName) return true
 
-            // Parallel fetch
+            // Execute concurrent requests to reduce latency
             val (activitiesResp, session) = withContext(Dispatchers.IO) {
                 val actDeferred = async { api.listActivities(sessionName) }
                 val sessDeferred = async { api.getSession(sessionName) }
