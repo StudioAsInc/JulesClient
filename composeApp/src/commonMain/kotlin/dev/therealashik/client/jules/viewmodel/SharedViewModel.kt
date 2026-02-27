@@ -10,7 +10,7 @@ import dev.therealashik.client.jules.data.JulesRepository
 import dev.therealashik.jules.sdk.model.*
 import dev.therealashik.client.jules.model.ThemePreset
 import dev.therealashik.client.jules.model.CreateSessionConfig
-import kotlinx.datetime.Clock
+import dev.therealashik.client.jules.utils.TimeUtils
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.minus
@@ -293,7 +293,7 @@ class SharedViewModel(
 
     private fun calculateSessionsUsed(sessions: List<JulesSession>): Int {
         try {
-            val now = Clock.System.now()
+            val now = TimeUtils.nowInstant()
             val twentyFourHoursAgo = now.minus(24, DateTimeUnit.HOUR)
             return sessions.count {
                 try {

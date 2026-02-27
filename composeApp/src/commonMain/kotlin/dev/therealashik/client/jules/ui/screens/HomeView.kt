@@ -90,7 +90,8 @@ fun HomeView(
                         Text(
                             "No repositories found. Ensure the Jules App is installed on your GitHub.",
                             color = Color(0xFFF59E0B),
-                            fontSize = 14.sp
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(vertical = JulesSpacing.xs)
                         )
                     }
                 }
@@ -139,16 +140,16 @@ fun HomeView(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(JulesSpacing.s)) {
-                    ActionButton(Icons.Default.ViewInAr, "Render")
-                    ActionButton(Icons.Default.Terminal, "CLI")
-                    ActionButton(Icons.Default.Code, "API")
-                }
+                    Row(horizontalArrangement = Arrangement.spacedBy(JulesSpacing.s)) {
+                        ActionButton(Icons.Default.ViewInAr, "Render")
+                        ActionButton(Icons.Default.Terminal, "CLI")
+                        ActionButton(Icons.Default.Code, "API")
+                    }
 
-                if (onResetKey != null) {
-                    ActionButton(Icons.Default.Refresh, "Reset Key", onClick = onResetKey)
+                    if (onResetKey != null) {
+                        ActionButton(Icons.Default.Refresh, "Reset Key", onClick = onResetKey)
+                    }
                 }
-            }
             
             // Bottom padding for mobile
             Spacer(modifier = Modifier.height(JulesSpacing.xxl))
