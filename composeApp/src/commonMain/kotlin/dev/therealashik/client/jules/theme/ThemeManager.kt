@@ -5,6 +5,7 @@ import dev.therealashik.client.jules.model.CustomTheme
 import dev.therealashik.client.jules.model.Theme
 import dev.therealashik.client.jules.model.ThemePreset
 import dev.therealashik.client.jules.storage.SettingsStorage
+import dev.therealashik.client.jules.utils.TimeUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,8 +38,8 @@ class ThemeManager(
             return@withContext Result.failure(IllegalArgumentException("Invalid theme colors"))
         }
 
-        val id = "custom_${System.currentTimeMillis()}"
-        val now = System.currentTimeMillis()
+        val now = TimeUtils.now()
+        val id = "custom_$now"
         val customTheme = CustomTheme(
             id = id,
             name = name,
@@ -74,7 +75,7 @@ class ThemeManager(
             name = name,
             theme_json = json.encodeToString(theme),
             created_at = existing.created_at,
-            updated_at = System.currentTimeMillis(),
+            updated_at = TimeUtils.now(),
             is_active = existing.is_active
         )
 

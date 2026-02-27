@@ -1,7 +1,7 @@
 package dev.therealashik.client.jules.viewmodel
 
 import dev.therealashik.client.jules.api.JulesApi
-import dev.therealashik.client.jules.model.*
+import dev.therealashik.jules.sdk.model.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
 import kotlin.test.AfterTest
@@ -48,7 +48,7 @@ class PerformanceTest {
 
         override suspend fun listSources(pageSize: Int, pageToken: String?): ListSourcesResponse = ListSourcesResponse()
         override suspend fun listAllSources(): List<JulesSource> = emptyList()
-        override suspend fun getSource(sourceName: String): JulesSource = JulesSource("test-source")
+        override suspend fun getSource(sourceName: String): JulesSource = JulesSource("test-source", "test-id", "Test Source")
 
         override suspend fun listSessions(pageSize: Int, pageToken: String?): ListSessionsResponse = ListSessionsResponse()
         override suspend fun listAllSessions(): List<JulesSession> = emptyList()

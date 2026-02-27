@@ -4,6 +4,7 @@ import dev.therealashik.client.jules.db.JulesDatabase
 import dev.therealashik.client.jules.model.CacheConfig
 import dev.therealashik.client.jules.model.CacheStats
 import kotlinx.coroutines.*
+import dev.therealashik.client.jules.utils.TimeUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,7 +30,7 @@ class CacheManager(
     suspend fun get(key: String): String? = withContext(Dispatchers.IO) {
         if (!config.enabled) return@withContext null
 
-        val now = System.currentTimeMillis()
+        val now = TimeUtils.now()
         val entry = queries.getCacheEntry(key, now).executeAsOneOrNull()
 
         if (entry != null) {
@@ -47,9 +48,9 @@ class CacheManager(
     suspend fun set(key: String, value: String, ttlMs: Long = config.getExpirationMs()) = withContext(Dispatchers.IO) {
         if (!config.enabled) return@withContext
 
-        val now = System.currentTimeMillis()
+        val now = TimeUtils.now()
         val expiresAt = if (ttlMs == Long.MAX_VALUE) Long.MAX_VALUE else now + ttlMs
-        val sizeBytes = value.toByteArray().size.toLong()
+        val sizeBytes = value.encodeToByteArray().size.toLong()
 
         // Check size limit
         val currentSize = queries.getCacheSize().executeAsOne()
@@ -72,7 +73,7 @@ class CacheManager(
 
     suspend fun clear() = withContext(Dispatchers.IO) {
         queries.clearCache()
-        queries.updateCacheMetadata(0, 0, System.currentTimeMillis(), 0, 0)
+        queries.updateCacheMetadata(0, 0, TimeUtils.now(), 0, 0)
         updateStats()
     }
 
@@ -87,7 +88,7 @@ class CacheManager(
     }
 
     private suspend fun pruneExpired() = withContext(Dispatchers.IO) {
-        val now = System.currentTimeMillis()
+        val now = TimeUtils.now()
         queries.pruneExpiredCache(now)
         queries.updateCacheMetadata(
             queries.getCacheSize().executeAsOne(),

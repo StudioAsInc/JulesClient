@@ -26,6 +26,8 @@ fun SettingsScreen(
     themeManager: ThemeManager,
     cacheManager: CacheManager,
     settingsStorage: SettingsStorage,
+    apiKey: String,
+    onApiKeyChange: (String) -> Unit,
     onNavigateBack: () -> Unit,
     onEditTheme: (CustomTheme?) -> Unit
 ) {
@@ -60,6 +62,36 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(JulesSpacing.l)
         ) {
+            // Account Section
+            Text("Account", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(JulesSpacing.m))
+
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(JulesSpacing.l)) {
+                    Text("Jules API Key", style = MaterialTheme.typography.bodyMedium)
+                    Spacer(Modifier.height(JulesSpacing.s))
+                    OutlinedTextField(
+                        value = apiKey,
+                        onValueChange = onApiKeyChange,
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        placeholder = { Text("Enter your API key") },
+                        visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Password
+                        )
+                    )
+                    Spacer(Modifier.height(JulesSpacing.s))
+                    Text(
+                        "Your API key is stored locally on your device.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(JulesSpacing.xl))
+
             // Appearance Section
             Text("Appearance", style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(JulesSpacing.m))

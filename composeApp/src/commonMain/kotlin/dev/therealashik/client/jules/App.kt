@@ -118,6 +118,8 @@ fun JulesAppContent(viewModel: SharedViewModel) {
                             themeManager = JulesData.themeManager,
                             cacheManager = JulesData.cacheManager,
                             settingsStorage = JulesData.settingsStorage,
+                            apiKey = state.apiKey ?: "",
+                            onApiKeyChange = { viewModel.setApiKey(it) },
                             onNavigateBack = { viewModel.navigateBack() },
                             onEditTheme = {} // TODO: Implement navigation to theme editor
                         )

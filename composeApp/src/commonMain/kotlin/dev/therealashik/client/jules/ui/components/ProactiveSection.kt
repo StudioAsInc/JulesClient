@@ -78,7 +78,7 @@ fun ProactiveSection(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    horizontalArrangement = Arrangement.spacedBy(JulesSpacing.m),
                     modifier = Modifier.weight(1f)
                 ) {
                     Box(
@@ -90,7 +90,7 @@ fun ProactiveSection(
                     ) {
                         Icon(Icons.Default.Lightbulb, contentDescription = null, tint = Color(0xFF818CF8), modifier = Modifier.size(JulesSizes.iconMedium))
                     }
-                    Column {
+                    Column(verticalArrangement = Arrangement.Center) {
                         Text("Automatically find issues", color = Color(0xFFF4F4F5), fontSize = 15.sp, fontWeight = FontWeight.Medium)
                         Text("Scan codebase for bugs & improvements", color = Color.Gray, fontSize = 12.sp)
                     }

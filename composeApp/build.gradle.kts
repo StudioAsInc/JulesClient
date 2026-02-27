@@ -78,8 +78,8 @@ kotlin {
             implementation(libs.multiplatform.markdown.renderer)
             
             // Icons
-            implementation(compose.material)
-            implementation(compose.materialIconsExtended)
+            implementation(libs.compose.material)
+            implementation(libs.compose.materialIconsExtended)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

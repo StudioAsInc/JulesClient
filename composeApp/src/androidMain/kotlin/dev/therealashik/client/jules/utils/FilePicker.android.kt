@@ -59,9 +59,11 @@ actual fun rememberFilePickerLauncher(onFilePicked: (PlatformFile) -> Unit): Fil
             onFilePicked(AndroidPlatformFile(uri, contentResolver))
         }
     }
-    return remember {
-        FilePickerLauncher {
-            launcher.launch("*/*")
+    return remember(launcher) {
+        object : FilePickerLauncher {
+            override fun launch() {
+                launcher.launch("*/*")
+            }
         }
     }
 }
