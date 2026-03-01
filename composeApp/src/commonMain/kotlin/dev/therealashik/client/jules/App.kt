@@ -43,16 +43,16 @@ fun JulesAppContent(viewModel: SharedViewModel) {
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Header(
-                onOpenDrawer = { isDrawerOpen = true },
-                isLoading = state.isProcessing || state.isLoading,
-                onOpenSettings = { viewModel.navigateToSettings() }
-            )
-
             Box(modifier = Modifier.weight(1f)) {
                 when (val screen = state.currentScreen) {
                     is Screen.Home -> {
-                        HomeView(
+                        Column {
+                            Header(
+                                onOpenDrawer = { isDrawerOpen = true },
+                                isLoading = state.isProcessing || state.isLoading,
+                                onOpenSettings = { viewModel.navigateToSettings() }
+                            )
+                            HomeView(
                             currentSource = state.currentSource,
                             sources = state.sources,
                             onSourceChange = { viewModel.selectSource(it) },
@@ -60,11 +60,12 @@ fun JulesAppContent(viewModel: SharedViewModel) {
                                 viewModel.createSession(text, config)
                             },
                             isProcessing = state.isProcessing,
-                            sessions = state.sessions,
-                            onSelectSession = { viewModel.selectSession(it) },
-                            onResetKey = { viewModel.setApiKey("") }, // Assuming setApiKey empty resets it or we need a proper reset
-                            error = state.error
-                        )
+                                sessions = state.sessions,
+                                onSelectSession = { viewModel.selectSession(it) },
+                                onResetKey = { viewModel.setApiKey("") }, // Assuming setApiKey empty resets it or we need a proper reset
+                                error = state.error
+                            )
+                        }
                     }
                     is Screen.Session -> {
                         val session = state.currentSession
@@ -93,24 +94,38 @@ fun JulesAppContent(viewModel: SharedViewModel) {
                     }
                     is Screen.Repository -> {
                         if (state.currentSource != null) {
-                            RepositoryView(
-                                source = state.currentSource!!,
-                                sessions = state.sessions,
-                                onStartNewSession = { viewModel.navigateBack() }, // Going back to Home triggers new session flow UI
-                                onSelectSession = { viewModel.selectSession(it) }
-                            )
+                            Column {
+                                Header(
+                                    onOpenDrawer = { isDrawerOpen = true },
+                                    isLoading = state.isProcessing || state.isLoading,
+                                    onOpenSettings = { viewModel.navigateToSettings() }
+                                )
+                                RepositoryView(
+                                    source = state.currentSource!!,
+                                    sessions = state.sessions,
+                                    onStartNewSession = { viewModel.navigateBack() }, // Going back to Home triggers new session flow UI
+                                    onSelectSession = { viewModel.selectSession(it) }
+                                )
+                            }
                         } else {
                             // Should not happen, fallback to Home
-                            HomeView(
-                                currentSource = null,
-                                sources = state.sources,
-                                onSourceChange = { viewModel.selectSource(it) },
-                                onSendMessage = { text, config -> viewModel.createSession(text, config) },
-                                isProcessing = state.isProcessing,
-                                sessions = state.sessions,
-                                onSelectSession = { viewModel.selectSession(it) },
-                                error = state.error
-                            )
+                            Column {
+                                Header(
+                                    onOpenDrawer = { isDrawerOpen = true },
+                                    isLoading = state.isProcessing || state.isLoading,
+                                    onOpenSettings = { viewModel.navigateToSettings() }
+                                )
+                                HomeView(
+                                    currentSource = null,
+                                    sources = state.sources,
+                                    onSourceChange = { viewModel.selectSource(it) },
+                                    onSendMessage = { text, config -> viewModel.createSession(text, config) },
+                                    isProcessing = state.isProcessing,
+                                    sessions = state.sessions,
+                                    onSelectSession = { viewModel.selectSession(it) },
+                                    error = state.error
+                                )
+                            }
                         }
                     }
                     is Screen.Settings -> {

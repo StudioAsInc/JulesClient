@@ -356,7 +356,7 @@ fun InputArea(
                                             containerColor = Color.Transparent,
                                             labelColor = MaterialTheme.colorScheme.onSurface
                                         ),
-                                        border = AssistChipDefaults.assistChipBorder(borderColor = MaterialTheme.colorScheme.outlineVariant)
+                                        border = AssistChipDefaults.assistChipBorder(true, borderColor = MaterialTheme.colorScheme.outlineVariant)
                                     )
 
                                     if (isRepoMenuOpen) {
@@ -448,7 +448,7 @@ fun InputArea(
                                             containerColor = Color.Transparent,
                                             labelColor = MaterialTheme.colorScheme.onSurface
                                         ),
-                                        border = AssistChipDefaults.assistChipBorder(borderColor = MaterialTheme.colorScheme.outlineVariant)
+                                        border = AssistChipDefaults.assistChipBorder(true, borderColor = MaterialTheme.colorScheme.outlineVariant)
                                     )
 
                                     DropdownMenu(

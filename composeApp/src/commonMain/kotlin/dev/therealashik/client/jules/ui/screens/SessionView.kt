@@ -266,6 +266,7 @@ private fun getTextContent(content: MessageContent?): String? {
 fun ActivityItem(activity: JulesActivity, defaultCardState: Boolean, onApprovePlan: (String?) -> Unit) {
     val isUser = activity.userMessaged != null || activity.userMessage != null
     val isPlan = activity.planGenerated != null
+    val isPlanApproved = activity.planApproved != null
     val isProgress = activity.progressUpdated != null
     val isCompleted = activity.sessionCompleted != null
     val isFailed = activity.sessionFailed != null
@@ -282,7 +283,7 @@ fun ActivityItem(activity: JulesActivity, defaultCardState: Boolean, onApprovePl
     // Relaxed check: Render if there is text, OR it's a special type, OR it has artifacts.
     // Even if text is null, we might want to show "System Event" or artifacts.
     val hasArtifacts = activity.artifacts.isNotEmpty()
-    val shouldRender = text != null || isPlan || isProgress || hasArtifacts || isCompleted || isFailed || activity.originator == "system"
+    val shouldRender = text != null || isPlan || isPlanApproved || isProgress || hasArtifacts || isCompleted || isFailed || activity.originator == "system"
 
     if (!shouldRender) {
         return
@@ -294,7 +295,7 @@ fun ActivityItem(activity: JulesActivity, defaultCardState: Boolean, onApprovePl
             .padding(vertical = JulesSpacing.m) // Increased vertical padding from 4.dp to 12.dp
     ) {
         // System Message
-        if (activity.originator == "system" && !isPlan && !isProgress && !isCompleted && !isFailed) {
+        if (activity.originator == "system" && !isPlan && !isPlanApproved && !isProgress && !isCompleted && !isFailed) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -514,6 +515,12 @@ fun ActivityItem(activity: JulesActivity, defaultCardState: Boolean, onApprovePl
                 val plan = planGenerated.plan
                 // val isApproved = activity.planApproved != null // Simplification
                 PlanCard(plan, defaultCardState, onApprove = { onApprovePlan(activity.name) })
+                Spacer(modifier = Modifier.height(JulesSpacing.s))
+            }
+
+            // Plan Approved
+            if (isPlanApproved) {
+                StatusBanner(success = true, message = "Plan Approved")
                 Spacer(modifier = Modifier.height(JulesSpacing.s))
             }
 
