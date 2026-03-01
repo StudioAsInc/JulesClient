@@ -84,8 +84,8 @@ fun Drawer(
                 modifier = Modifier
                     .width(JulesSizes.drawerWidth)
                     .fillMaxHeight()
-                    .background(JulesDrawerBackground)
-                    .border(1.dp, JulesDrawerBorder, RectangleShape)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RectangleShape)
                     .clickable(enabled = false) {}
             ) {
                 // Header
@@ -105,14 +105,14 @@ fun Drawer(
                         Icon(
                             Icons.Default.SmartToy,
                             contentDescription = "Jules",
-                            tint = Color.White.copy(alpha = 0.8f),
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(JulesSpacing.xxl)
                         )
                         Text(
                             "jules",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSurface,
                             letterSpacing = (-0.5).sp
                         )
                     }
@@ -121,14 +121,14 @@ fun Drawer(
                         onClick = onClose,
                         modifier = Modifier.size(JulesSpacing.xxxl),
                         colors = IconButtonDefaults.filledTonalIconButtonColors(
-                            containerColor = Color(0xFF27272A),
-                            contentColor = Color(0xFF9CA3AF)
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     ) {
                         Icon(Icons.Default.Close, null, modifier = Modifier.size(JulesSizes.iconMedium))
                     }
                 }
-                Divider(color = JulesDrawerBorder)
+                Divider(color = MaterialTheme.colorScheme.outlineVariant)
 
                 // Search Input
                 var searchQuery by remember { mutableStateOf("") }
@@ -139,12 +139,12 @@ fun Drawer(
                         .fillMaxWidth()
                         .padding(JulesSpacing.l)
                         .background(
-                            if (isFocused) JulesDrawerSearchBgFocused else JulesDrawerSearchBg,
+                            MaterialTheme.colorScheme.surfaceVariant,
                             JulesShapes.medium
                         )
                         .border(
                             1.dp,
-                            if (isFocused) JulesDrawerSearchBorderFocused else JulesDrawerSearchBorder,
+                            if (isFocused) MaterialTheme.colorScheme.primary else Color.Transparent,
                             JulesShapes.medium
                         )
                         .padding(horizontal = JulesSpacing.m, vertical = 10.dp),
@@ -153,7 +153,7 @@ fun Drawer(
                     Icon(
                         Icons.Default.Search,
                         contentDescription = null,
-                        tint = if (isFocused) JulesPrimary else JulesZinc,
+                        tint = if (isFocused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(JulesSizes.iconSmall)
                     )
 
@@ -164,11 +164,11 @@ fun Drawer(
                             .weight(1f)
                             .padding(start = JulesSpacing.m)
                             .onFocusChanged { isFocused = it.isFocused },
-                        textStyle = TextStyle(color = Color.White, fontSize = 14.sp),
+                        textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp),
                         singleLine = true,
                         decorationBox = { innerTextField ->
                             if (searchQuery.isEmpty()) {
-                                Text("Search repositories & sessions...", color = Color(0xFF52525B), fontSize = 14.sp)
+                                Text("Search repositories & sessions...", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                             }
                             innerTextField()
                         }
@@ -241,8 +241,8 @@ fun Drawer(
                 // Footer
                 Column(
                     modifier = Modifier
-                        .background(JulesDrawerBackground)
-                        .border(1.dp, JulesDrawerBorder)
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant)
                         .padding(JulesSpacing.l)
                 ) {
                     // Progress
@@ -254,20 +254,20 @@ fun Drawer(
                         Text(
                             "Daily Usage ($sessionsUsed/$dailyLimit)",
                             fontSize = 12.sp,
-                            color = JulesZinc
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(4.dp)
-                            .background(JulesDrawerProgressBg, RoundedCornerShape(2.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(2.dp))
                     ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth(sessionsUsed.toFloat() / dailyLimit.coerceAtLeast(1))
                                 .height(4.dp)
-                                .background(JulesDrawerProgressFill, RoundedCornerShape(2.dp))
+                                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
                         )
                     }
 
@@ -283,8 +283,8 @@ fun Drawer(
                             onClick = { onNavigateToSettings?.invoke() },
                             modifier = Modifier.weight(1f).height(40.dp),
                             colors = ButtonDefaults.filledTonalButtonColors(
-                                containerColor = JulesDrawerButtonBg,
-                                contentColor = Color(0xFFD4D4D8)
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             ),
                             shape = JulesShapes.small
                         ) {
@@ -298,8 +298,8 @@ fun Drawer(
                             onClick = { openUrl("https://docs.jules.ai") },
                             modifier = Modifier.size(40.dp),
                             colors = IconButtonDefaults.filledTonalIconButtonColors(
-                                containerColor = JulesDrawerButtonBg,
-                                contentColor = Color(0xFF9CA3AF)
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         ) {
                             Icon(Icons.Default.MenuBook, null, modifier = Modifier.size(18.dp))
@@ -310,8 +310,8 @@ fun Drawer(
                             onClick = { openUrl("https://discord.gg/jules") },
                             modifier = Modifier.size(40.dp),
                             colors = IconButtonDefaults.filledTonalIconButtonColors(
-                                containerColor = JulesDrawerButtonBg,
-                                contentColor = Color(0xFF9CA3AF)
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         ) {
                             Icon(Icons.Default.Forum, null, modifier = Modifier.size(18.dp))
@@ -371,22 +371,24 @@ fun SessionItem(
     val displayInfo = remember(session.state) { getSessionDisplayInfo(session.state) }
     var menuExpanded by remember { mutableStateOf(false) }
 
+    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
+    val contentColor = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 2.dp)
             .clip(JulesShapes.small)
-            .background(if (isSelected) JulesDrawerItemSelected else Color.Transparent)
+            .background(backgroundColor)
             .clickable { onSelect() }
-            .padding(JulesSpacing.m),
-        verticalAlignment = Alignment.Top,
+            .padding(horizontal = JulesSpacing.m, vertical = JulesSpacing.s),
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(JulesSpacing.m)
     ) {
         // Emoji
         Text(
             text = displayInfo.emoji,
             fontSize = 16.sp,
-            modifier = Modifier.padding(top = 2.dp)
         )
 
         Column(modifier = Modifier.weight(1f)) {
@@ -394,37 +396,28 @@ fun SessionItem(
             Text(
                 text = session.title ?: session.prompt,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Light,
-                color = if (isSelected) Color.White else Color(0xFFD4D4D8),
-                maxLines = 2,
+                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                color = contentColor,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
 
-            // Status and Helper
-            Column {
+            // Status and Helper (Compact)
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = displayInfo.label,
-                    fontSize = 10.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
-                    color = if (isSelected) Color(0xFFA5B4FC) else Color(0xFFA1A1AA),
-                    modifier = Modifier.padding(top = 2.dp)
+                    color = contentColor.copy(alpha = 0.7f)
                 )
-
-                Text(
-                    text = displayInfo.helperText,
-                    fontSize = 10.sp,
-                    color = Color(0xFF52525B),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-
                 if (displayInfo.cta != "none") {
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "${displayInfo.cta} →",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = JulesIndigo,
-                        modifier = Modifier.padding(top = 2.dp)
+                        text = "• ${displayInfo.cta}",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1
                     )
                 }
             }
@@ -432,28 +425,25 @@ fun SessionItem(
 
         // Context Menu
         Box {
-             FilledTonalIconButton(
+             IconButton(
                 onClick = { menuExpanded = true },
-                modifier = Modifier.size(40.dp),
-                colors = IconButtonDefaults.filledTonalIconButtonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = JulesZinc
-                )
+                modifier = Modifier.size(32.dp)
             ) {
                 Icon(
                     Icons.Default.MoreVert,
                     contentDescription = "Options",
-                    modifier = Modifier.size(JulesSizes.iconSmall)
+                    modifier = Modifier.size(16.dp),
+                    tint = contentColor.copy(alpha = 0.7f)
                 )
             }
 
             DropdownMenu(
                 expanded = menuExpanded,
                 onDismissRequest = { menuExpanded = false },
-                modifier = Modifier.background(Color(0xFF18181B))
+                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer)
             ) {
                 DropdownMenuItem(
-                    text = { Text("Delete", fontSize = 12.sp, color = JulesRed) },
+                    text = { Text("Delete", fontSize = 12.sp, color = MaterialTheme.colorScheme.error) },
                     onClick = {
                         onDelete()
                         menuExpanded = false
@@ -470,31 +460,40 @@ fun SourceItem(
     isSelected: Boolean,
     onSelect: () -> Unit
 ) {
+    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
+    val contentColor = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
+    val iconBg = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surfaceVariant
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 2.dp)
             .clip(JulesShapes.small)
-            .background(if (isSelected) JulesDrawerItemSelected else Color.Transparent)
+            .background(backgroundColor)
             .clickable { onSelect() }
-            .padding(JulesSpacing.m),
+            .padding(horizontal = JulesSpacing.m, vertical = JulesSpacing.s),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
-            modifier = Modifier.size(JulesSizes.iconSmall).background(Color(0xFF27272A), RoundedCornerShape(4.dp)),
+            modifier = Modifier
+                .size(24.dp)
+                .background(iconBg, RoundedCornerShape(4.dp)),
             contentAlignment = Alignment.Center
         ) {
-             Text("G", fontSize = 10.sp, color = Color.Gray)
+             Text(
+                 "G",
+                 fontSize = 12.sp,
+                 fontWeight = FontWeight.Bold,
+                 color = if (isSelected) contentColor else MaterialTheme.colorScheme.onSurfaceVariant
+             )
         }
         Spacer(modifier = Modifier.width(JulesSpacing.m))
-        Column {
-            Text(
-                text = source.displayName ?: source.name.split("/").takeLast(2).joinToString("/"),
-                fontSize = 14.sp,
-                color = if (isSelected) Color.White else Color(0xFFA1A1AA),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
+        Text(
+            text = source.displayName ?: source.name.split("/").takeLast(2).joinToString("/"),
+            fontSize = 14.sp,
+            color = contentColor,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }

@@ -101,7 +101,7 @@ fun SessionView(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.surface)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -109,7 +109,7 @@ fun SessionView(
             // Header
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color(0xFF0E0E11).copy(alpha = 0.8f),
+                color = MaterialTheme.colorScheme.surfaceContainer,
                 tonalElevation = 2.dp
             ) {
                 Row(
@@ -120,14 +120,14 @@ fun SessionView(
                 ) {
                     Text(
                         "Chat",
-                        color = Color(0xFF71717A),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 14.sp,
                         modifier = Modifier.clickable { onNavigateHome() }
                     )
-                    Text(" / ", color = Color(0xFF3F3F46), fontSize = 14.sp)
+                    Text(" / ", color = MaterialTheme.colorScheme.outline, fontSize = 14.sp)
                     Text(
                         session.title ?: session.name.removePrefix("sessions/"),
-                        color = Color(0xFFD4D4D8),
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 14.sp,
                         fontFamily = FontFamily.Monospace,
                         maxLines = 1,
@@ -135,7 +135,7 @@ fun SessionView(
                     )
                 }
             }
-            HorizontalDivider(color = Color.White.copy(alpha = JulesOpacity.subtle))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             // Chat History
             LazyColumn(
@@ -161,7 +161,7 @@ fun SessionView(
                     }
                 }
 
-                // Shimmer Loading State
+                // Shimmer Loading State - Appended so previous content isn't hidden
                 if (isProcessing) {
                     item {
                         ShimmerMessage()
@@ -279,9 +279,12 @@ fun ActivityItem(activity: JulesActivity, defaultCardState: Boolean, onApprovePl
         else -> activity.description // System message or fallback
     }
 
-    // Skip rendering if essentially empty (unless it has artifacts/plan/progress)
+    // Relaxed check: Render if there is text, OR it's a special type, OR it has artifacts.
+    // Even if text is null, we might want to show "System Event" or artifacts.
     val hasArtifacts = activity.artifacts.isNotEmpty()
-    if (text == null && !isPlan && !isProgress && !hasArtifacts && !isCompleted && !isFailed && activity.originator != "system") {
+    val shouldRender = text != null || isPlan || isProgress || hasArtifacts || isCompleted || isFailed || activity.originator == "system"
+
+    if (!shouldRender) {
         return
     }
 
