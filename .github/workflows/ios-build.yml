@@ -24,15 +24,12 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    - name: Build KMP Framework
-      run: ./gradlew :composeApp:embedAndSignAppleFrameworkForXcode
-
     - name: Build iOS App (Simulator)
       run: |
         xcodebuild -project iosApp/iosApp.xcodeproj \
           -scheme iosApp \
           -sdk iphonesimulator \
-          -destination 'platform=iOS Simulator,name=iPhone 15' \
+          -destination 'platform=iOS Simulator,name=iPhone 16' \
           clean build \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
