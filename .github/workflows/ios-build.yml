@@ -25,7 +25,11 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build KMP Framework
-      run: ./gradlew :composeApp:embedAndSignAppleFrameworkForXcode
+      run: |
+        export CONFIGURATION=Debug
+        export ARCHS=arm64
+        export PLATFORM_NAME=iphonesimulator
+        ./gradlew :composeApp:embedAndSignAppleFrameworkForXcode
 
     - name: Build iOS App (Simulator)
       run: |
