@@ -30,6 +30,9 @@ import dev.therealashik.jules.sdk.model.JulesSession
 import dev.therealashik.jules.sdk.model.JulesSource
 import dev.therealashik.jules.sdk.model.SessionState
 import dev.therealashik.client.jules.ui.*
+import dev.therealashik.client.jules.ui.JulesSpacing
+import dev.therealashik.client.jules.ui.JulesShapes
+import dev.therealashik.client.jules.ui.JulesSizes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,42 +62,42 @@ fun RepositoryView(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.surface, // Use surface instead of hardcoded
+                            MaterialTheme.colorScheme.surface,
                             MaterialTheme.colorScheme.background
                         )
                     )
                 )
         ) {
-            Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 32.dp)) {
+            Column(modifier = Modifier.padding(horizontal = JulesSpacing.xxl, vertical = JulesSpacing.xxxl)) {
                 Text(
                     text = source.displayName ?: source.name.substringAfterLast("/"),
                     style = MaterialTheme.typography.headlineMedium,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 )
                 Text(
                     text = source.name,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontFamily = FontFamily.Monospace,
-                    modifier = Modifier.padding(top = 4.dp)
+                    modifier = Modifier.padding(top = JulesSpacing.xs)
                 )
                 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(JulesSpacing.xxxl))
 
                 // Tabs
                 TabRow(
                     selectedTabIndex = selectedTab,
                     containerColor = Color.Transparent,
-                    contentColor = JulesPrimary,
+                    contentColor = MaterialTheme.colorScheme.primary,
                     divider = {},
                     indicator = { tabPositions ->
                         Box(
                             Modifier
                                 .tabIndicatorOffset(tabPositions[selectedTab])
                                 .height(3.dp)
-                                .padding(horizontal = 16.dp)
-                                .background(JulesPrimary, RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
+                                .padding(horizontal = JulesSpacing.l)
+                                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
                         )
                     }
                 ) {
@@ -105,7 +108,7 @@ fun RepositoryView(
                             text = { 
                                 Text(
                                     title, 
-                                    color = if (selectedTab == index) Color.White else Color.Gray,
+                                    color = if (selectedTab == index) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal,
                                     fontSize = 14.sp
                                 ) 
@@ -159,15 +162,15 @@ fun OverviewTab(
     }
 
     LazyColumn(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        contentPadding = PaddingValues(JulesSpacing.l),
+        verticalArrangement = Arrangement.spacedBy(JulesSpacing.l)
     ) {
         // Stats Cards
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                StatsCard("Active", activeCount, JulesIndigo, Modifier.weight(1f))
+            Row(horizontalArrangement = Arrangement.spacedBy(JulesSpacing.l)) {
+                StatsCard("Active", activeCount, MaterialTheme.colorScheme.primary, Modifier.weight(1f))
                 StatsCard("Completed", completedCount, JulesGreen, Modifier.weight(1f))
-                StatsCard("Failed", failedCount, JulesRed, Modifier.weight(1f))
+                StatsCard("Failed", failedCount, MaterialTheme.colorScheme.error, Modifier.weight(1f))
             }
         }
 
@@ -177,21 +180,21 @@ fun OverviewTab(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Search sessions...", color = Color.Gray) },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
+                    placeholder = { Text("Search sessions...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = JulesSurface,
-                        unfocusedContainerColor = JulesSurface,
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                         focusedBorderColor = Color.Transparent,
                         unfocusedBorderColor = Color.Transparent
                     ),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = JulesShapes.medium
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(JulesSpacing.m))
 
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(JulesSpacing.s)) {
                     items(filters) { filter ->
                         MyFilterChip(
                             selected = selectedFilter == filter,
@@ -208,21 +211,21 @@ fun OverviewTab(
             Button(
                 onClick = onStartNewSession,
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = JulesPrimary),
-                shape = RoundedCornerShape(8.dp)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                shape = JulesShapes.small
             ) {
                 Icon(Icons.Default.Add, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Start New Session")
+                Spacer(modifier = Modifier.width(JulesSpacing.s))
+                Text("Start New Session", color = MaterialTheme.colorScheme.onPrimary)
             }
         }
 
         // History List
         if (filteredSessions.isEmpty()) {
             item {
-                Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                Box(modifier = Modifier.fillMaxWidth().padding(JulesSpacing.xxxl), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("No sessions found", color = Color.Gray, style = MaterialTheme.typography.bodyLarge)
+                        Text("No sessions found", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyLarge)
                     }
                 }
             }
@@ -241,13 +244,13 @@ fun MyFilterChip(
     label: @Composable () -> Unit
 ) {
     Surface(
-        color = if (selected) JulesPrimary.copy(alpha = 0.2f) else JulesSurface,
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, if (selected) JulesPrimary else Color.Transparent),
+        color = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant,
+        shape = JulesShapes.small,
+        border = BorderStroke(1.dp, if (selected) MaterialTheme.colorScheme.primary else Color.Transparent),
         modifier = Modifier.clickable(onClick = onClick)
     ) {
-        Box(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) {
-            CompositionLocalProvider(LocalContentColor provides if (selected) JulesPrimary else Color.Gray) {
+        Box(modifier = Modifier.padding(horizontal = JulesSpacing.m, vertical = 6.dp)) {
+            CompositionLocalProvider(LocalContentColor provides if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant) {
                 label()
             }
         }
@@ -258,9 +261,9 @@ fun MyFilterChip(
 fun StatsCard(label: String, count: Int, color: Color, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.height(100.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF18181B)),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.05f))
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        shape = JulesShapes.large,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             // Subtle accent
@@ -274,20 +277,20 @@ fun StatsCard(label: String, count: Int, color: Color, modifier: Modifier = Modi
             
             Column(
                 modifier = Modifier
-                    .padding(start = 20.dp, top = 16.dp, bottom = 16.dp, end = 16.dp),
+                    .padding(start = JulesSpacing.xl, top = JulesSpacing.l, bottom = JulesSpacing.l, end = JulesSpacing.l),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     label.uppercase(), 
                     style = MaterialTheme.typography.labelSmall, 
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     letterSpacing = 1.sp,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     count.toString(),
                     style = MaterialTheme.typography.headlineMedium,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold
                 )
             }
@@ -299,11 +302,11 @@ fun StatsCard(label: String, count: Int, color: Color, modifier: Modifier = Modi
 fun SessionHistoryItem(session: JulesSession, onSelect: (JulesSession) -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onSelect(session) },
-        colors = CardDefaults.cardColors(containerColor = JulesSurface),
-        shape = RoundedCornerShape(12.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        shape = JulesShapes.medium
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(JulesSpacing.l),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Status Icon
@@ -315,31 +318,31 @@ fun SessionHistoryItem(session: JulesSession, onSelect: (JulesSession) -> Unit) 
 
             Box(
                 modifier = Modifier
-                    .size(32.dp)
+                    .size(JulesSizes.avatar)
                     .background(color.copy(alpha = 0.1f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(icon, color = color, fontWeight = FontWeight.Bold)
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(JulesSpacing.l))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     session.title ?: "Untitled Session",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     session.createTime.take(10), // Simple date format
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(JulesSpacing.s))
 
             // Status Badge
             Text(
@@ -354,16 +357,16 @@ fun SessionHistoryItem(session: JulesSession, onSelect: (JulesSession) -> Unit) 
 
 @Composable
 fun EnvironmentTab(source: JulesSource) {
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.padding(JulesSpacing.l)) {
         // Project Structure Card
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = JulesSurface),
-            shape = RoundedCornerShape(12.dp)
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+            shape = JulesShapes.medium
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Project Structure", style = MaterialTheme.typography.titleMedium, color = Color.White)
-                Spacer(modifier = Modifier.height(16.dp))
+            Column(modifier = Modifier.padding(JulesSpacing.l)) {
+                Text("Project Structure", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                Spacer(modifier = Modifier.height(JulesSpacing.l))
 
                 EnvironmentRow("Detected Language", "Kotlin / TypeScript") // Mock
                 EnvironmentRow("Package Manager", "Gradle / pnpm") // Mock
@@ -371,17 +374,17 @@ fun EnvironmentTab(source: JulesSource) {
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(JulesSpacing.l))
 
         // Capabilities Card
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = JulesSurface),
-            shape = RoundedCornerShape(12.dp)
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+            shape = JulesShapes.medium
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Capabilities", style = MaterialTheme.typography.titleMedium, color = Color.White)
-                Spacer(modifier = Modifier.height(16.dp))
+            Column(modifier = Modifier.padding(JulesSpacing.l)) {
+                Text("Capabilities", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                Spacer(modifier = Modifier.height(JulesSpacing.l))
 
                 CapabilityRow("Read Files", true)
                 CapabilityRow("Run Commands", true)
@@ -394,21 +397,21 @@ fun EnvironmentTab(source: JulesSource) {
 @Composable
 fun EnvironmentRow(label: String, value: String) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = JulesSpacing.xs),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
-        Text(value, style = MaterialTheme.typography.bodyMedium, color = Color.White)
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(value, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
     }
 }
 
 @Composable
 fun CapabilityRow(label: String, enabled: Boolean) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = JulesSpacing.xs),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(if (enabled) "✅" else "❌", style = MaterialTheme.typography.bodyMedium)
     }
 }
@@ -416,20 +419,20 @@ fun CapabilityRow(label: String, enabled: Boolean) {
 @Composable
 fun KnowledgeTab() {
     Box(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(JulesSpacing.l),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
              CircularProgressIndicator(
-                color = JulesPrimary,
-                modifier = Modifier.size(48.dp)
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(JulesSizes.touchTarget)
              )
-             Spacer(modifier = Modifier.height(16.dp))
-             Text("Indexing Codebase...", style = MaterialTheme.typography.titleMedium, color = Color.White)
+             Spacer(modifier = Modifier.height(JulesSpacing.l))
+             Text("Indexing Codebase...", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
              Text(
                  "The AI is learning the structure of your repository.",
                  style = MaterialTheme.typography.bodyMedium,
-                 color = Color.Gray
+                 color = MaterialTheme.colorScheme.onSurfaceVariant
              )
         }
     }
