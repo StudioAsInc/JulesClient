@@ -144,15 +144,25 @@ class ThemeManager(
     }
 
     private suspend fun loadCustomThemes() {
-        val themes = queries.getAllCustomThemes().executeAsList().map {
-            CustomTheme(
-                id = it.id,
-                name = it.name,
-                theme = json.decodeFromString(it.theme_json),
-                createdAt = it.created_at,
-                updatedAt = it.updated_at,
-                isActive = it.is_active == 1L
-            )
+        val currentThemes = _customThemes.value.associateBy { it.id }
+        val themes = queries.getAllCustomThemes().executeAsList().map { row ->
+            val existing = currentThemes[row.id]
+            if (existing != null && existing.updatedAt == row.updated_at && existing.name == row.name) {
+                if (existing.isActive == (row.is_active == 1L)) {
+                    existing
+                } else {
+                    existing.copy(isActive = row.is_active == 1L)
+                }
+            } else {
+                CustomTheme(
+                    id = row.id,
+                    name = row.name,
+                    theme = json.decodeFromString(row.theme_json),
+                    createdAt = row.created_at,
+                    updatedAt = row.updated_at,
+                    isActive = row.is_active == 1L
+                )
+            }
         }
         _customThemes.value = themes
     }
