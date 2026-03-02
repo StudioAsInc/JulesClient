@@ -38,10 +38,11 @@ class JulesRepository(
             if (!forceNetwork) {
                 cache.get(cacheKey)?.let { cached ->
                     val sources = json.decodeFromString<List<JulesSource>>(cached)
+                    val encodedSources = sources.map { it.name to json.encodeToString(it) }
                     queries.transaction {
                         queries.deleteAllSources()
-                        sources.forEach { source ->
-                            queries.insertSource(source.name, json.encodeToString(source))
+                        encodedSources.forEach { (name, jsonBlob) ->
+                            queries.insertSource(name, jsonBlob)
                         }
                     }
                     return@withContext
@@ -50,10 +51,11 @@ class JulesRepository(
             
             try {
                 val remote = api.listAllSources()
+                val encodedRemote = remote.map { it.name to json.encodeToString(it) }
                 queries.transaction {
                     queries.deleteAllSources()
-                    remote.forEach { source ->
-                        queries.insertSource(source.name, json.encodeToString(source))
+                    encodedRemote.forEach { (name, jsonBlob) ->
+                        queries.insertSource(name, jsonBlob)
                     }
                 }
                 cache.set(cacheKey, json.encodeToString(remote))
@@ -79,10 +81,11 @@ class JulesRepository(
             if (!forceNetwork) {
                 cache.get(cacheKey)?.let { cached ->
                     val sessions = json.decodeFromString<List<JulesSession>>(cached)
+                    val encodedSessions = sessions.map { Triple(it.name, json.encodeToString(it), it.updateTime) }
                     queries.transaction {
                         queries.deleteAllSessions()
-                        sessions.forEach { session ->
-                            queries.insertSession(session.name, json.encodeToString(session), session.updateTime)
+                        encodedSessions.forEach { (name, jsonBlob, updateTime) ->
+                            queries.insertSession(name, jsonBlob, updateTime)
                         }
                     }
                     return@withContext
@@ -91,10 +94,11 @@ class JulesRepository(
             
             try {
                 val remote = api.listAllSessions()
+                val encodedRemote = remote.map { Triple(it.name, json.encodeToString(it), it.updateTime) }
                 queries.transaction {
                     queries.deleteAllSessions()
-                    remote.forEach { session ->
-                        queries.insertSession(session.name, json.encodeToString(session), session.updateTime)
+                    encodedRemote.forEach { (name, jsonBlob, updateTime) ->
+                        queries.insertSession(name, jsonBlob, updateTime)
                     }
                 }
                 cache.set(cacheKey, json.encodeToString(remote))
@@ -148,10 +152,11 @@ class JulesRepository(
             if (!forceNetwork) {
                 cache.get(cacheKey)?.let { cached ->
                     val activities = json.decodeFromString<List<JulesActivity>>(cached)
+                    val encodedActivities = activities.map { Triple(it.name, json.encodeToString(it), it.createTime) }
                     queries.transaction {
                         queries.deleteAllActivitiesForSession(sessionId)
-                        activities.forEach { activity ->
-                            queries.insertActivity(activity.name, sessionId, json.encodeToString(activity), activity.createTime)
+                        encodedActivities.forEach { (name, jsonBlob, createTime) ->
+                            queries.insertActivity(name, sessionId, jsonBlob, createTime)
                         }
                     }
                     return@withContext
@@ -167,10 +172,11 @@ class JulesRepository(
                     pageToken = response.nextPageToken
                 } while (pageToken != null)
 
+                val encodedActivities = allActivities.map { Triple(it.name, json.encodeToString(it), it.createTime) }
                 queries.transaction {
                     queries.deleteAllActivitiesForSession(sessionId)
-                    allActivities.forEach { activity ->
-                        queries.insertActivity(activity.name, sessionId, json.encodeToString(activity), activity.createTime)
+                    encodedActivities.forEach { (name, jsonBlob, createTime) ->
+                        queries.insertActivity(name, sessionId, jsonBlob, createTime)
                     }
                 }
                 cache.set(cacheKey, json.encodeToString(allActivities))
