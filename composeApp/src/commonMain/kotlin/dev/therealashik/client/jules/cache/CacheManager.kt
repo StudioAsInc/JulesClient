@@ -78,12 +78,7 @@ class CacheManager(
     }
 
     suspend fun clearByPrefix(prefix: String) = withContext(Dispatchers.IO) {
-        // FIXME: SQLite doesn't have a direct way to delete by prefix efficiently
-        // This is a simplified version - needs proper implementation with LIKE query
-        queries.transaction {
-            val allKeys = queries.getCacheCount().executeAsOne()
-            // In production, you'd want a better approach
-        }
+        queries.deleteCacheEntriesByPrefix("$prefix%")
         updateStats()
     }
 

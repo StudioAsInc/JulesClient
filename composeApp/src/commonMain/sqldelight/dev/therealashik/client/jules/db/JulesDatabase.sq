@@ -89,6 +89,9 @@ SELECT * FROM cacheEntry WHERE key = ? AND expires_at > ?;
 deleteCacheEntry:
 DELETE FROM cacheEntry WHERE key = ?;
 
+deleteCacheEntriesByPrefix:
+DELETE FROM cacheEntry WHERE key LIKE :prefix;
+
 clearCache:
 DELETE FROM cacheEntry;
 
