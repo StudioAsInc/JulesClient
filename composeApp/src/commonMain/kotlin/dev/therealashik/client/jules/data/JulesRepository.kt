@@ -176,9 +176,8 @@ class JulesRepository(
                 cache.set(cacheKey, json.encodeToString(allActivities))
 
                 // Also refresh the session details itself
-                val session = api.getSession(sessionId)
-                queries.insertSession(session.name, json.encodeToString(session), session.updateTime)
-                cache.set("session_$sessionId", json.encodeToString(session))
+                // Optimized: Using getSession which has caching logic
+                getSession(sessionId, forceNetwork = forceNetwork)
             } catch (e: Exception) {
                 println("Failed to refresh activities: $e")
                 throw e
