@@ -1,5 +1,7 @@
 package dev.therealashik.jules.sdk.model
 
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
 
@@ -194,7 +196,9 @@ data class ListActivitiesResponse(
 @Serializable
 internal data class CreateSessionRequest(
     val prompt: String,
-    val sourceContext: SourceContext,
+    @OptIn(ExperimentalSerializationApi::class)
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val sourceContext: SourceContext? = null,
     val title: String? = null,
     val requirePlanApproval: Boolean = true,
     val automationMode: AutomationMode = AutomationMode.AUTO_CREATE_PR
