@@ -26,11 +26,22 @@ export default function App() {
         return apiKey ? new GeminiService(apiKey, pagination) : null;
     }, [apiKey, pagination]);
 
-    // Initialize API key from local storage or environment
-    useEffect(() {
+    // Initialize API key from storage or environment
+    useEffect(() => {
         // Check environment variables first (injected by Vite)
         const envKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
-        const storedKey = localStorage.getItem('jules_api_key');
+
+        // Use sessionStorage for API keys as it's more secure than localStorage
+        let storedKey = sessionStorage.getItem('jules_api_key');
+
+        // Migration: If key is in localStorage, move it to sessionStorage and remove from localStorage
+        const legacyKey = localStorage.getItem('jules_api_key');
+        if (legacyKey && !storedKey) {
+            storedKey = legacyKey;
+            sessionStorage.setItem('jules_api_key', legacyKey);
+            localStorage.removeItem('jules_api_key');
+        }
+
         const key = envKey || storedKey;
 
         if (key) {
@@ -39,7 +50,8 @@ export default function App() {
     }, []);
 
     const handleSetKey = (key: string) => {
-        localStorage.setItem('jules_api_key', key);
+        // Store key in sessionStorage instead of localStorage to prevent persistence after session ends
+        sessionStorage.setItem('jules_api_key', key);
         setApiKey(key);
     };
 
@@ -160,7 +172,8 @@ export default function App() {
                         error={error}
                         currentSource={currentSource}
                         onResetKey={() => {
-                            localStorage.removeItem('jules_api_key');
+                            sessionStorage.removeItem('jules_api_key');
+                            localStorage.removeItem('jules_api_key'); // Ensure legacy key is also removed
                             setApiKey('');
                         }}
                         sessions={sessions}

@@ -3,13 +3,13 @@ import { test, expect } from '@playwright/test';
 test.describe('Navigation and Environment Variables', () => {
 
     test('should bypass login if API key is present (simulated) and navigate pages', async ({ page }) => {
-        // 1. Simulate a logged-in state by injecting the key into localStorage.
-        // This validates that IF the app logic works (checking env var OR localStorage),
+        // 1. Simulate a logged-in state by injecting the key into sessionStorage.
+        // This validates that IF the app logic works (checking env var OR sessionStorage),
         // it proceeds to the main app. Since we can't easily inject env vars into the
-        // running Vite server from here without restarting it, we rely on localStorage
+        // running Vite server from here without restarting it, we rely on sessionStorage
         // to verify the "authenticated" flow.
         await page.addInitScript(() => {
-            localStorage.setItem('jules_api_key', 'test-dummy-key');
+            sessionStorage.setItem('jules_api_key', 'test-dummy-key');
         });
 
         // 2. Navigate to Home

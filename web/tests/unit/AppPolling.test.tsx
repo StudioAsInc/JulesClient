@@ -28,30 +28,35 @@ vi.mock('../../services/geminiService', () => {
 // Mock scrollIntoView
 window.HTMLElement.prototype.scrollIntoView = vi.fn();
 
-// Mock localStorage
-const localStorageMock = (function() {
+// Mock storage
+const createStorageMock = () => {
     let store: Record<string, string> = {};
     return {
-        getItem: (key: string) => store[key] || null,
-        setItem: (key: string, value: string) => { store[key] = value.toString(); },
-        removeItem: (key: string) => { delete store[key]; },
-        clear: () => { store = {}; }
+        getItem: vi.fn((key: string) => store[key] || null),
+        setItem: vi.fn((key: string, value: string) => { store[key] = value.toString(); }),
+        removeItem: vi.fn((key: string) => { delete store[key]; }),
+        clear: vi.fn(() => { store = {}; }),
+        length: 0,
+        key: vi.fn((index: number) => Object.keys(store)[index] || null),
     };
-})();
+};
 
-Object.defineProperty(window, 'localStorage', {
-    value: localStorageMock
-});
+const localStorageMock = createStorageMock();
+const sessionStorageMock = createStorageMock();
+
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+Object.defineProperty(window, 'sessionStorage', { value: sessionStorageMock });
 
 describe('App Polling Logic', () => {
     beforeEach(() => {
         // Use real timers by default to avoid waitFor issues
         vi.useRealTimers();
         localStorageMock.clear();
+        sessionStorageMock.clear();
         vi.clearAllMocks();
 
         // Setup default mocks
-        localStorageMock.setItem('jules_api_key', 'test-key');
+        sessionStorageMock.setItem('jules_api_key', 'test-key');
         mockListSources.mockResolvedValue({ sources: [] });
         mockListAllSessions.mockResolvedValue([]);
     });
