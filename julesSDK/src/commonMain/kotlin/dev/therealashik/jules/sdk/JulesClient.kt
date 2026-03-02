@@ -166,13 +166,16 @@ class JulesClient(
         automationMode: AutomationMode = AutomationMode.AUTO_CREATE_PR,
         startingBranch: String = "main"
     ): JulesSession {
-        // TODO: Add support for repoless sessions (omit sourceContext when sourceName is empty)
-        val request = CreateSessionRequest(
-            prompt = prompt,
-            sourceContext = SourceContext(
+        val sourceContext = if (sourceName.isNotEmpty()) {
+            SourceContext(
                 source = sourceName,
                 githubRepoContext = GitHubRepoContext(startingBranch = startingBranch)
-            ),
+            )
+        } else null
+
+        val request = CreateSessionRequest(
+            prompt = prompt,
+            sourceContext = sourceContext,
             title = title,
             requirePlanApproval = requirePlanApproval,
             automationMode = automationMode
