@@ -74,7 +74,10 @@ JulesClient/
 
 - **Indentation:** 4 spaces (no tabs allowed in this house! 🏠).
 - **Line Length:** 120 chars. Keep it readable! 📖
-- **Naming:** `PascalCase` for classes/composables, `camelCase` for functions/vars.
+- **Naming:**
+    - `PascalCase`: Classes and Composables.
+    - `camelCase`: Functions and Variables.
+    - `UPPER_SNAKE_CASE`: Constants. 🐍
 - **Explicit Types:** Use them for public APIs. Let's not make the next agent guess! 🤔
 
 ---
@@ -85,70 +88,41 @@ JulesClient/
 1. Create a Composable in `ui/`.
 ```kotlin
 @Composable
-fun MyNewScreen(
-    viewModel: MyViewModel = viewModel(),
-    onNavigateBack: () -> Unit
-) {
+fun MyNewScreen(viewModel: MyViewModel = viewModel()) {
     val state by viewModel.state.collectAsState()
-    
-    Scaffold(
-        topBar = { /* AppBar */ }
-    ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
-            // Screen content
-        }
-    }
+    Scaffold { padding -> /* Content here! */ }
 }
 ```
 2. Hook it up with a ViewModel in `viewmodel/`.
-```kotlin
-class MyViewModel(
-    private val repository: JulesRepository
-) : ViewModel() {
-    private val _state = MutableStateFlow(MyState())
-    val state: StateFlow<MyState> = _state.asStateFlow()
-    
-    fun loadData() {
-        viewModelScope.launch {
-            // Load data
-        }
-    }
-}
-```
 3. Use `Scaffold` and follow Material 3 guidelines! 🎨
 
 ### 🔌 Adding an API Endpoint
 1. Add the method to `JulesClient.kt` in `julesSDK`.
-```kotlin
-suspend fun myNewEndpoint(param: String): MyResponse {
-    return authRequest("$baseUrl/my-endpoint?param=$param")
-}
-```
 2. Add the `@Serializable` model in `Types.kt`.
 3. Wrap it in the Repository with caching logic! 📦
-```kotlin
-suspend fun getMyData(param: String): MyResponse {
-    return withContext(Dispatchers.IO) {
-        api.myNewEndpoint(param)
-    }
-}
-```
 
 ### 💾 Adding a Database Table
 1. Define the table and queries in `JulesDatabase.sq`.
-```sql
-CREATE TABLE myTable (
-  id TEXT NOT NULL PRIMARY KEY,
-  name TEXT NOT NULL,
-  created_at INTEGER NOT NULL
-);
-
-insertMyEntity:
-INSERT OR REPLACE INTO myTable(id, name, created_at)
-VALUES (?, ?, ?);
-```
 2. Run the Gradle build to generate the code. 🏗️
 3. Update the Repository to use the new queries!
+
+### 📱 Platform Magic (Expect/Actual)
+1. Define `expect` in `commonMain`:
+```kotlin
+expect class MyFeature() { fun doMagic(): String }
+```
+2. Implement `actual` in `androidMain`, `iosMain`, and `jvmMain`! ✨
+
+### 🎨 Adding a New Theme
+1. Add your new masterpiece to the `ThemePreset` enum in `model/ThemeSettings.kt`.
+2. Define the colors (no hex codes outside here! 🙅‍♂️) and it'll show up in settings!
+
+### ⚡ Smart Caching
+1. Use `CacheManager` in your Repository:
+```kotlin
+val cached = cacheManager.get(key) ?: api.fetch().also { cacheManager.set(key, it) }
+```
+Keep those responses snappy! 🚀
 
 ---
 
@@ -175,4 +149,4 @@ VALUES (?, ?, ?);
 
 ---
 
-**v2.0.0** (2026-02-27): Refactored with the **Jules Persona** and Golden Rules! 🚀✨
+**v2.1.0** (2026-02-27): Restored missing guides and constant naming conventions! 🚀✨
