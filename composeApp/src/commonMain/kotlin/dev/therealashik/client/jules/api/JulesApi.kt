@@ -6,6 +6,9 @@ interface JulesApi {
     fun setApiKey(key: String)
     fun getApiKey(): String
 
+    fun setBaseUrl(url: String)
+    fun getBaseUrl(): String
+
     suspend fun listSources(pageSize: Int = 50, pageToken: String? = null): ListSourcesResponse
     suspend fun listAllSources(): List<JulesSource>
     suspend fun getSource(sourceName: String): JulesSource

@@ -39,6 +39,8 @@ sealed class Screen {
 
 data class JulesUiState(
     val apiKey: String? = null,
+    val accounts: List<dev.therealashik.client.jules.model.Account> = emptyList(),
+    val activeAccountId: String? = null,
     val sources: List<JulesSource> = emptyList(),
     val currentSource: JulesSource? = null,
     val sessions: List<JulesSession> = emptyList(),
@@ -95,13 +97,140 @@ class SharedViewModel(
     // --- Initialization ---
 
     fun setApiKey(key: String) {
-        // Allow setting empty key to "logout" or reset, but always save it
+        // Backward compatibility: If an API key is set directly,
+        // create a default account or update the active one.
+        val defaultUrl = "https://jules.googleapis.com/v1alpha"
+
         api.setApiKey(key)
+        api.setBaseUrl(defaultUrl)
+
+        // Save as single default account for now to support existing flows
+        val activeId = "default"
+        val accounts = if (key.isNotBlank()) {
+            listOf(dev.therealashik.client.jules.model.Account(id = activeId, name = "Default", apiKey = key, apiUrl = defaultUrl))
+        } else {
+            emptyList()
+        }
+
+        // Save serialized accounts JSON string
         Settings.saveString("api_key", key)
-        _uiState.update { it.copy(apiKey = key) }
+        if (accounts.isNotEmpty()) {
+            val accountsJson = kotlinx.serialization.json.Json.encodeToString(
+                kotlinx.serialization.builtins.ListSerializer(dev.therealashik.client.jules.model.Account.serializer()),
+                accounts
+            )
+            Settings.saveString("accounts", accountsJson)
+            Settings.saveString("active_account_id", activeId)
+        } else {
+            Settings.saveString("accounts", "[]")
+            Settings.saveString("active_account_id", "")
+        }
+
+        _uiState.update { it.copy(apiKey = key, accounts = accounts, activeAccountId = if (key.isNotBlank()) activeId else null) }
         
         if (key.isNotBlank()) {
             loadInitialData()
+        }
+    }
+
+    private fun saveAccounts(accounts: List<dev.therealashik.client.jules.model.Account>, activeId: String?) {
+        val accountsJson = kotlinx.serialization.json.Json.encodeToString(
+            kotlinx.serialization.builtins.ListSerializer(dev.therealashik.client.jules.model.Account.serializer()),
+            accounts
+        )
+        Settings.saveString("accounts", accountsJson)
+        Settings.saveString("active_account_id", activeId ?: "")
+    }
+
+    fun addAccount(account: dev.therealashik.client.jules.model.Account) {
+        _uiState.update { state ->
+            val updatedAccounts = state.accounts.filter { it.id != account.id } + account
+            // If it's the first account, make it active
+            val newActiveId = if (state.activeAccountId.isNullOrBlank()) account.id else state.activeAccountId
+
+            saveAccounts(updatedAccounts, newActiveId)
+
+            // Re-apply if active
+            if (newActiveId == account.id) {
+                api.setApiKey(account.apiKey)
+                api.setBaseUrl(account.apiUrl)
+                Settings.saveString("api_key", account.apiKey) // For backward compatibility
+            }
+
+            state.copy(accounts = updatedAccounts, activeAccountId = newActiveId, apiKey = if (newActiveId == account.id) account.apiKey else state.apiKey)
+        }
+        if (api.getApiKey().isNotBlank()) {
+            refreshAll()
+        }
+    }
+
+    fun switchAccount(accountId: String) {
+        val account = _uiState.value.accounts.find { it.id == accountId } ?: return
+
+        api.setApiKey(account.apiKey)
+        api.setBaseUrl(account.apiUrl)
+        Settings.saveString("api_key", account.apiKey)
+        Settings.saveString("active_account_id", accountId)
+
+        _uiState.update {
+            it.copy(
+                activeAccountId = accountId,
+                apiKey = account.apiKey,
+                // Clear state
+                sources = emptyList(),
+                currentSource = null,
+                sessions = emptyList(),
+                currentSession = null,
+                activities = emptyList(),
+                currentScreen = Screen.Home
+            )
+        }
+
+        // Optionally clear DB/Cache here or scope repository queries by account
+
+        refreshAll()
+    }
+
+    fun removeAccount(accountId: String) {
+        _uiState.update { state ->
+            val updatedAccounts = state.accounts.filter { it.id != accountId }
+            val newActiveId = if (state.activeAccountId == accountId) {
+                updatedAccounts.firstOrNull()?.id
+            } else {
+                state.activeAccountId
+            }
+
+            saveAccounts(updatedAccounts, newActiveId)
+
+            val newActiveAccount = updatedAccounts.find { it.id == newActiveId }
+            if (newActiveAccount != null) {
+                api.setApiKey(newActiveAccount.apiKey)
+                api.setBaseUrl(newActiveAccount.apiUrl)
+                Settings.saveString("api_key", newActiveAccount.apiKey)
+            } else {
+                api.setApiKey("")
+                Settings.saveString("api_key", "")
+            }
+
+            state.copy(
+                accounts = updatedAccounts,
+                activeAccountId = newActiveId,
+                apiKey = newActiveAccount?.apiKey ?: ""
+            )
+        }
+        if (api.getApiKey().isNotBlank()) {
+            refreshAll()
+        } else {
+            _uiState.update {
+                it.copy(
+                    sources = emptyList(),
+                    currentSource = null,
+                    sessions = emptyList(),
+                    currentSession = null,
+                    activities = emptyList(),
+                    currentScreen = Screen.Home
+                )
+            }
         }
     }
 
@@ -115,11 +244,34 @@ class SharedViewModel(
             ThemePreset.MIDNIGHT
         }
         
-        // Load API Key
-        val savedKey = Settings.getString("api_key", "")
-        if (savedKey.isNotBlank()) {
-             api.setApiKey(savedKey)
-             _uiState.update { it.copy(apiKey = savedKey) }
+        // Load Accounts
+        val accountsJson = Settings.getString("accounts", "[]")
+        val savedAccounts = try {
+            kotlinx.serialization.json.Json.decodeFromString(
+                kotlinx.serialization.builtins.ListSerializer(dev.therealashik.client.jules.model.Account.serializer()),
+                accountsJson
+            )
+        } catch (e: Exception) {
+            emptyList()
+        }
+
+        val activeAccountId = Settings.getString("active_account_id", "")
+
+        if (savedAccounts.isNotEmpty() && activeAccountId.isNotBlank()) {
+            val activeAccount = savedAccounts.find { it.id == activeAccountId } ?: savedAccounts.first()
+            api.setApiKey(activeAccount.apiKey)
+            api.setBaseUrl(activeAccount.apiUrl)
+            _uiState.update { it.copy(apiKey = activeAccount.apiKey, accounts = savedAccounts, activeAccountId = activeAccount.id) }
+        } else {
+            // Load API Key (backward compat)
+            val savedKey = Settings.getString("api_key", "")
+            if (savedKey.isNotBlank()) {
+                 val defaultUrl = "https://jules.googleapis.com/v1alpha"
+                 api.setApiKey(savedKey)
+                 api.setBaseUrl(defaultUrl)
+                 val accounts = listOf(dev.therealashik.client.jules.model.Account(id = "default", name = "Default", apiKey = savedKey, apiUrl = defaultUrl))
+                 _uiState.update { it.copy(apiKey = savedKey, accounts = accounts, activeAccountId = "default") }
+            }
         }
 
         _uiState.update { it.copy(defaultCardState = savedCardState, currentTheme = savedTheme) }

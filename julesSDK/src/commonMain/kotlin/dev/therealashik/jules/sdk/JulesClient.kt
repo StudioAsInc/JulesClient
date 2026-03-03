@@ -15,7 +15,7 @@ import kotlin.math.pow
 
 class JulesClient(
     private var apiKey: String = "",
-    private val baseUrl: String = "https://jules.googleapis.com/v1alpha",
+    private var baseUrl: String = "https://jules.googleapis.com/v1alpha",
     private val maxRetries: Int = 3,
     private val timeoutMs: Long = 30000,
     private val debugMode: Boolean = false
@@ -43,6 +43,12 @@ class JulesClient(
     }
 
     fun getApiKey(): String = apiKey
+
+    fun setBaseUrl(url: String) {
+        baseUrl = url
+    }
+
+    fun getBaseUrl(): String = baseUrl
 
     private suspend inline fun <reified T> authRequest(
         urlString: String,

@@ -14,6 +14,14 @@ object RealJulesApi : JulesApi {
         return client.getApiKey()
     }
 
+    override fun setBaseUrl(url: String) {
+        client.setBaseUrl(url)
+    }
+
+    override fun getBaseUrl(): String {
+        return client.getBaseUrl()
+    }
+
     override suspend fun listSources(pageSize: Int, pageToken: String?): ListSourcesResponse {
         return client.listSources(pageSize, pageToken)
     }

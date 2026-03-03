@@ -45,6 +45,8 @@ class PerformanceTest {
 
         override fun setApiKey(key: String) {}
         override fun getApiKey(): String = "test-key"
+        override fun setBaseUrl(url: String) {}
+        override fun getBaseUrl(): String = "https://jules.googleapis.com/v1alpha"
 
         override suspend fun listSources(pageSize: Int, pageToken: String?): ListSourcesResponse = ListSourcesResponse()
         override suspend fun listAllSources(): List<JulesSource> = emptyList()
