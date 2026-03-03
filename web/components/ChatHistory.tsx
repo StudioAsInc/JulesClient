@@ -325,7 +325,7 @@ const CodeChangeArtifact: React.FC<{ changeSet?: any, defaultCollapsed?: boolean
 
     const fileName = changeSet?.gitPatch?.unidiffPatch ? getFileName(changeSet.gitPatch.unidiffPatch) : null;
     const itemSize = 20; // 20px per line
-    const listHeight = Math.min(lines.length * itemSize, 500);
+    const listHeight = Math.min(diffLines.length * itemSize, 500);
 
     return (
         <div className="w-full min-w-0 max-w-[calc(100vw-4rem)] sm:max-w-xl md:max-w-2xl box-border">

@@ -1,16 +1,16 @@
 import { useState, useCallback, useEffect } from 'react';
-import * as JulesApi from '../services/geminiService';
+import { GeminiService } from '../services/geminiService';
 import { JulesSession } from '../types';
 
-export function useSessionList(apiKey: string | null) {
+export function useSessionList(service: GeminiService | null) {
     const [sessions, setSessions] = useState<JulesSession[]>([]);
     const [sessionsUsed, setSessionsUsed] = useState(0);
     const [dailyLimit] = useState(100); // Default to Pro plan
 
     const fetchSessions = useCallback(async () => {
-        if (!apiKey) return;
+        if (!service) return;
         try {
-            const allSessions = await JulesApi.listAllSessions();
+            const allSessions = await service.listAllSessions();
             setSessions(allSessions);
 
             // Calculate sessions in last 24 hours
@@ -24,14 +24,14 @@ export function useSessionList(apiKey: string | null) {
         } catch (e) {
             console.error("Failed to fetch sessions", e);
         }
-    }, [apiKey]);
+    }, [service]);
 
     // Initial fetch
     useEffect(() => {
-        if (apiKey) {
+        if (service) {
             fetchSessions();
         }
-    }, [apiKey, fetchSessions]);
+    }, [service, fetchSessions]);
 
     // Helper functions to modify local state
     const addSession = useCallback((session: JulesSession) => {
