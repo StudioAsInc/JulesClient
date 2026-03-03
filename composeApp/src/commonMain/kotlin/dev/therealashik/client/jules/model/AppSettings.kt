@@ -2,13 +2,20 @@ package dev.therealashik.client.jules.model
 
 import kotlinx.serialization.Serializable
 
-// TODO: Add user preferences (language, notifications, auto-refresh intervals)
+@Serializable
+data class UserPreferences(
+    val language: String = "en",
+    val notificationsEnabled: Boolean = true,
+    val autoRefreshInterval: Int = 30
+)
+
 @Serializable
 data class Account(
     val id: String,
     val name: String,
     val apiKey: String,
-    val apiUrl: String = "https://jules.googleapis.com/v1alpha"
+    val apiUrl: String = "https://jules.googleapis.com/v1alpha",
+    val userPreferences: UserPreferences = UserPreferences()
 )
 
 @Serializable
