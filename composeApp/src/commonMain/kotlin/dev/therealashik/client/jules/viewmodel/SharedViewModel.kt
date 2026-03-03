@@ -73,6 +73,10 @@ class SharedViewModel(
     private var activitiesJob: Job? = null
 
     init {
+        observeDatabase()
+    }
+
+    private fun observeDatabase() {
         // Observe sessions and sources from DB
         repository.sessions.onEach { sessions ->
             _uiState.update {
@@ -115,15 +119,9 @@ class SharedViewModel(
         // Save serialized accounts JSON string
         Settings.saveString("api_key", key)
         if (accounts.isNotEmpty()) {
-            val accountsJson = kotlinx.serialization.json.Json.encodeToString(
-                kotlinx.serialization.builtins.ListSerializer(dev.therealashik.client.jules.model.Account.serializer()),
-                accounts
-            )
-            Settings.saveString("accounts", accountsJson)
-            Settings.saveString("active_account_id", activeId)
+            saveAccounts(accounts, activeId)
         } else {
-            Settings.saveString("accounts", "[]")
-            Settings.saveString("active_account_id", "")
+            saveAccounts(emptyList(), null)
         }
 
         _uiState.update { it.copy(apiKey = key, accounts = accounts, activeAccountId = if (key.isNotBlank()) activeId else null) }
@@ -235,7 +233,17 @@ class SharedViewModel(
     }
 
     private fun loadInitialData() {
-        // Load settings
+        loadSettings()
+        loadAccounts()
+
+        if (api.getApiKey().isBlank()) {
+             return
+        }
+
+        refreshAll()
+    }
+
+    private fun loadSettings() {
         val savedCardState = Settings.getBoolean("default_card_state", false)
         val savedThemeStr = Settings.getString("theme", ThemePreset.MIDNIGHT.name)
         val savedTheme = try {
@@ -243,8 +251,10 @@ class SharedViewModel(
         } catch (e: Exception) {
             ThemePreset.MIDNIGHT
         }
-        
-        // Load Accounts
+        _uiState.update { it.copy(defaultCardState = savedCardState, currentTheme = savedTheme) }
+    }
+
+    private fun loadAccounts() {
         val accountsJson = Settings.getString("accounts", "[]")
         val savedAccounts = try {
             kotlinx.serialization.json.Json.decodeFromString(
@@ -273,14 +283,6 @@ class SharedViewModel(
                  _uiState.update { it.copy(apiKey = savedKey, accounts = accounts, activeAccountId = "default") }
             }
         }
-
-        _uiState.update { it.copy(defaultCardState = savedCardState, currentTheme = savedTheme) }
-
-        if (api.getApiKey().isBlank()) {
-             return
-        }
-
-        refreshAll()
     }
 
     private fun refreshAll() {
