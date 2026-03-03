@@ -3,7 +3,6 @@ package dev.therealashik.client.jules.storage
 import kotlinx.coroutines.flow.Flow
 
 // TODO: Add encrypted storage support for sensitive data (API keys)
-// TODO: Implement data migration strategy for version upgrades
 expect class SettingsStorage() {
     suspend fun saveString(key: String, value: String)
     suspend fun getString(key: String, default: String): String
