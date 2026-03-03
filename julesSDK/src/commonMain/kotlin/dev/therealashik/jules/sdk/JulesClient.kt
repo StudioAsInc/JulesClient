@@ -18,7 +18,8 @@ class JulesClient(
     private var baseUrl: String = "https://jules.googleapis.com/v1alpha",
     private val maxRetries: Int = 3,
     private val timeoutMs: Long = 30000,
-    private val debugMode: Boolean = false
+    private val debugMode: Boolean = false,
+    private val logger: JulesLogger = DefaultJulesLogger()
 ) {
     companion object {
         const val SDK_VERSION = "1.0.0"
@@ -63,7 +64,7 @@ class JulesClient(
         repeat(retries) { attempt ->
             try {
                 if (debugMode && attempt > 0) {
-                    println("[JulesSDK] Retry attempt $attempt for $urlString")
+                    logger.log("[JulesSDK] Retry attempt $attempt for $urlString")
                 }
 
                 val response = client.request(urlString) {
@@ -104,7 +105,7 @@ class JulesClient(
                 if (attempt < retries - 1) {
                     val delayMs = (100 * 2.0.pow(attempt)).toLong()
                     if (debugMode) {
-                        println("[JulesSDK] Network error, retrying in ${delayMs}ms: ${e.message}")
+                        logger.log("[JulesSDK] Network error, retrying in ${delayMs}ms: ${e.message}")
                     }
                     delay(delayMs)
                 } else {
