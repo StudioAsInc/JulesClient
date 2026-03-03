@@ -16,15 +16,21 @@ import dev.therealashik.client.jules.ui.screens.RepositoryView
 import dev.therealashik.client.jules.ui.screens.SessionView
 import dev.therealashik.client.jules.ui.screens.SettingsScreen
 import androidx.compose.material3.MaterialTheme
+import dev.therealashik.client.jules.navigation.DeepLinkHandler
 import dev.therealashik.client.jules.viewmodel.Screen
 import dev.therealashik.client.jules.viewmodel.SharedViewModel
 
 @Composable
 fun App() {
     // TODO: Implement proper navigation with Compose Navigation library
-    // TODO: Add deep linking support
     val viewModel = viewModel { SharedViewModel() }
     val state by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        DeepLinkHandler.deepLinks.collect { url ->
+            viewModel.handleDeepLink(url)
+        }
+    }
 
     JulesTheme(themeManager = JulesData.themeManager) {
         // Handle Back Navigation - Platform specific implementation needed

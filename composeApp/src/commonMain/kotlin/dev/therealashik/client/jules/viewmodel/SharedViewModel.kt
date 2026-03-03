@@ -361,6 +361,41 @@ class SharedViewModel(
         startPolling(session.name)
     }
 
+    fun handleDeepLink(url: String) {
+        val prefix = "jules://"
+        if (url.startsWith(prefix)) {
+            val path = url.removePrefix(prefix)
+            val parts = path.split("/")
+            if (parts.isNotEmpty()) {
+                when (parts[0]) {
+                    "session" -> {
+                        val sessionId = parts.getOrNull(1)
+                        if (sessionId != null) {
+                            val session = _uiState.value.sessions.find { it.name == sessionId }
+                            if (session != null) {
+                                selectSession(session)
+                            } else {
+                                _uiState.update { it.copy(currentScreen = Screen.Session(sessionId)) }
+                                startPolling(sessionId)
+                            }
+                        }
+                    }
+                    "repository" -> {
+                        val sourceId = parts.getOrNull(1)
+                        if (sourceId != null) {
+                            val source = _uiState.value.sources.find { it.name == sourceId }
+                            if (source != null) {
+                                selectSource(source)
+                            } else {
+                                _uiState.update { it.copy(currentScreen = Screen.Repository(sourceId)) }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun navigateBack() {
         _uiState.update { state ->
             when (state.currentScreen) {
