@@ -4,6 +4,7 @@ import dev.therealashik.jules.sdk.model.*
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.timeout
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -18,7 +19,8 @@ class JulesClient(
     private var baseUrl: String = "https://jules.googleapis.com/v1alpha",
     private val maxRetries: Int = 3,
     private val timeoutMs: Long = 30000,
-    private val debugMode: Boolean = false
+    private val debugMode: Boolean = false,
+    engine: HttpClientEngine? = null
 ) {
     companion object {
         const val SDK_VERSION = "1.0.0"
@@ -27,7 +29,7 @@ class JulesClient(
     // TODO: Add request/response interceptors for logging and monitoring
     // TODO: Implement rate limiting to prevent API quota exhaustion
     // TODO: Add WebSocket support for real-time activity streaming
-    private val client = HttpClient {
+    private val client = (engine?.let { HttpClient(it) } ?: HttpClient()).config {
         install(HttpTimeout)
         install(ContentNegotiation) {
             json(Json {
