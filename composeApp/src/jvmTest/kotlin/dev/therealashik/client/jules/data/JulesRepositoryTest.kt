@@ -5,7 +5,6 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import dev.therealashik.client.jules.api.JulesApi
 import dev.therealashik.client.jules.cache.CacheManager
 import dev.therealashik.client.jules.db.JulesDatabase
-import dev.therealashik.client.jules.model.AutomationMode
 import dev.therealashik.client.jules.model.CacheConfig
 import dev.therealashik.jules.sdk.model.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -88,6 +87,8 @@ class JulesRepositoryTest {
 
         override fun setApiKey(key: String) {}
         override fun getApiKey(): String = "test-key"
+        override fun setBaseUrl(url: String) {}
+        override fun getBaseUrl(): String = "https://jules.googleapis.com/v1alpha"
         override suspend fun listSources(pageSize: Int, pageToken: String?): ListSourcesResponse = ListSourcesResponse()
         override suspend fun listAllSources(): List<JulesSource> = emptyList()
         override suspend fun getSource(sourceName: String): JulesSource = JulesSource("test", "test", "test")
@@ -99,8 +100,8 @@ class JulesRepositoryTest {
             return JulesSession(name = sessionName, prompt = "test", createTime = "2024-01-01T00:00:00Z")
         }
 
-        override suspend fun createSession(prompt: String, sourceName: String, title: String?, requirePlanApproval: Boolean, automationMode: AutomationMode, startingBranch: String): JulesSession = JulesSession("test", "test", "test")
-        override suspend fun updateSession(sessionName: String, updates: Map<String, Any?>, updateMask: List<String>): JulesSession = JulesSession("test", "test", "test")
+        override suspend fun createSession(prompt: String, sourceName: String, title: String?, requirePlanApproval: Boolean, automationMode: AutomationMode, startingBranch: String): JulesSession = JulesSession(name = "test", prompt = "test", createTime = "2024-01-01T00:00:00Z")
+        override suspend fun updateSession(sessionName: String, updates: Map<String, Any?>, updateMask: List<String>): JulesSession = JulesSession(name = "test", prompt = "test", createTime = "2024-01-01T00:00:00Z")
         override suspend fun deleteSession(sessionName: String) {}
 
         override suspend fun listActivities(sessionName: String, pageSize: Int, pageToken: String?): ListActivitiesResponse {
