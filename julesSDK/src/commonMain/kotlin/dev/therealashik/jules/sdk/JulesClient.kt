@@ -6,6 +6,7 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.timeout
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -24,7 +25,6 @@ class JulesClient(
         const val SDK_VERSION = "1.0.0"
     }
 
-    // TODO: Add request/response interceptors for logging and monitoring
     // TODO: Implement rate limiting to prevent API quota exhaustion
     // TODO: Add WebSocket support for real-time activity streaming
     private val client = HttpClient {
@@ -35,6 +35,14 @@ class JulesClient(
                 isLenient = true
                 encodeDefaults = true
             })
+        }
+        install(Logging) {
+            logger = object : Logger {
+                override fun log(message: String) {
+                    println("[JulesSDK] $message")
+                }
+            }
+            level = if (debugMode) LogLevel.ALL else LogLevel.NONE
         }
     }
 
