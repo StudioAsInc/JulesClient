@@ -147,3 +147,5 @@ UPDATE customTheme SET is_active = 0;
 
 activateTheme:
 UPDATE customTheme SET is_active = 1 WHERE id = ?;
+getTopAccessedKeysByPrefix:
+SELECT key FROM cacheEntry WHERE key LIKE ? ORDER BY access_count DESC LIMIT ?;
