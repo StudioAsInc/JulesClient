@@ -18,7 +18,8 @@ class JulesClient(
     private var baseUrl: String = "https://jules.googleapis.com/v1alpha",
     private val maxRetries: Int = 3,
     private val timeoutMs: Long = 30000,
-    private val debugMode: Boolean = false
+    private val debugMode: Boolean = false,
+    private val httpClient: HttpClient? = null
 ) {
     companion object {
         const val SDK_VERSION = "1.0.0"
@@ -27,7 +28,7 @@ class JulesClient(
     // TODO: Add request/response interceptors for logging and monitoring
     // TODO: Implement rate limiting to prevent API quota exhaustion
     // TODO: Add WebSocket support for real-time activity streaming
-    private val client = HttpClient {
+    private val client = httpClient ?: HttpClient {
         install(HttpTimeout)
         install(ContentNegotiation) {
             json(Json {
