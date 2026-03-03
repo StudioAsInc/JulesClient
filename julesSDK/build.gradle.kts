@@ -24,6 +24,10 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
         }
+
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
         
         jvmMain.dependencies {
             implementation(libs.ktor.client.cio)
