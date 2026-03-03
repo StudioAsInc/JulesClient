@@ -10,6 +10,8 @@ import dev.therealashik.client.jules.model.CreateSessionConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
@@ -243,11 +245,14 @@ class JulesRepository(
     suspend fun warmCache() {
         withContext(Dispatchers.IO) {
             try {
-                // Warm sources
-                refreshSources(forceNetwork = true)
-                
-                // Warm sessions
-                refreshSessions(forceNetwork = true)
+                coroutineScope {
+                    // Warm sources and sessions concurrently
+                    val sourcesDeferred = async { refreshSources(forceNetwork = true) }
+                    val sessionsDeferred = async { refreshSessions(forceNetwork = true) }
+
+                    sourcesDeferred.await()
+                    sessionsDeferred.await()
+                }
                 
                 // TODO: Add selective cache warming for frequently accessed sessions
                 // TODO: Implement background cache refresh strategy
