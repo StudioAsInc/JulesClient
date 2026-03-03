@@ -11,6 +11,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -22,6 +29,9 @@ class JulesRepository(
 ) {
     private val queries = db.julesDatabaseQueries
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+
+    private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var backgroundRefreshJob: Job? = null
 
     // SOURCES
     val sources: Flow<List<JulesSource>> = queries.selectAllSources()
@@ -243,17 +253,51 @@ class JulesRepository(
     suspend fun warmCache() {
         withContext(Dispatchers.IO) {
             try {
-                // Warm sources
-                refreshSources(forceNetwork = true)
-                
-                // Warm sessions
-                refreshSessions(forceNetwork = true)
-                
-                // TODO: Add selective cache warming for frequently accessed sessions
-                // TODO: Implement background cache refresh strategy
+                coroutineScope {
+                    // Warm sources and sessions concurrently
+                    val sourcesDeferred = async { refreshSources(forceNetwork = true) }
+                    val sessionsDeferred = async { refreshSessions(forceNetwork = true) }
+
+                    sourcesDeferred.await()
+                    sessionsDeferred.await()
+
+                    // Selective cache warming for frequently accessed sessions
+                    // Get the 3 most recently updated sessions
+                    val recentSessions = queries.selectAllSessions().executeAsList().take(3)
+
+                    recentSessions.forEach { sessionEntity ->
+                        launch {
+                            try {
+                                refreshActivities(sessionEntity.name, forceNetwork = true)
+                            } catch (e: Exception) {
+                                println("Failed to warm activities for ${sessionEntity.name}: $e")
+                            }
+                        }
+                    }
+                }
             } catch (e: Exception) {
                 println("Cache warming failed: $e")
             }
         }
+    }
+
+    fun startBackgroundRefresh(intervalMs: Long = 15 * 60 * 1000L) {
+        if (backgroundRefreshJob?.isActive == true) return
+
+        backgroundRefreshJob = repositoryScope.launch {
+            while (true) {
+                try {
+                    warmCache()
+                } catch (e: Exception) {
+                    println("Background refresh iteration failed: $e")
+                }
+                delay(intervalMs)
+            }
+        }
+    }
+
+    fun stopBackgroundRefresh() {
+        backgroundRefreshJob?.cancel()
+        backgroundRefreshJob = null
     }
 }
