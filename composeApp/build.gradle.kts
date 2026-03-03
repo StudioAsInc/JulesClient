@@ -142,3 +142,13 @@ compose.desktop {
         }
     }
 }
+
+kotlin {
+    sourceSets {
+        val jvmTest by getting {
+            dependencies {
+                implementation(libs.kotlinx.datetime)
+            }
+        }
+    }
+}
