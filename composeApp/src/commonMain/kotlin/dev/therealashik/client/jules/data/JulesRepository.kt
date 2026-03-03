@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -164,6 +165,10 @@ class JulesRepository(
             }
             
             try {
+                val sessionDeferred = async {
+                    getSession(sessionId, forceNetwork = forceNetwork)
+                }
+
                 val allActivities = mutableListOf<JulesActivity>()
                 var pageToken: String? = null
                 do {
@@ -181,9 +186,8 @@ class JulesRepository(
                 }
                 cache.set(cacheKey, json.encodeToString(allActivities))
 
-                // Also refresh the session details itself
-                // Optimized: Using getSession which has caching logic
-                getSession(sessionId, forceNetwork = forceNetwork)
+                // Also refresh the session details itself concurrently
+                sessionDeferred.await()
             } catch (e: Exception) {
                 println("Failed to refresh activities: $e")
                 throw e
