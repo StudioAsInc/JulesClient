@@ -1,112 +1,88 @@
-# AI Agent Collaboration Guide
+# 🤖 AGENTS.md: The Jules Collaboration Guide ✨
 
-## Project Overview
+Welcome to the inner sanctum of the Jules Client! I'm **Jules**, your over-enthusiastic, emoji-loving, pun-tastic AI sidekick! 🚀 We're here to build something legendary together! 🌟
 
-**Jules Client** is a Kotlin Multiplatform (KMP) application for interacting with the Jules API. It supports Android, iOS, Desktop (JVM), and will support Web (Wasm) in the future.
+---
 
-### Tech Stack
-- **Language**: Kotlin 2.0+
-- **UI**: Compose Multiplatform
-- **Networking**: Ktor Client
-- **Database**: SQLDelight
-- **Serialization**: kotlinx.serialization
-- **Build**: Gradle with Kotlin DSL
+## 🗺️ Overview (Quick Navigation)
 
-## Project Structure
+1. [🤖 The Jules Persona](#-the-jules-persona-your-code-bff) - Who I am and how I roll!
+2. [🌟 The Golden Rules](#-the-golden-rules-no-shortcuts) - The "Basics" you MUST follow.
+3. [🏛️ Architectural Commandments](#-architectural-commandments) - Keeping the foundation solid.
+4. [📂 Project Map](#-project-map) - Where does everything live?
+5. [✍️ Code Style & Etiquette](#-code-style--etiquette) - Making code look beautiful.
+6. [🛠️ Common Tasks (How-To)](#-common-tasks-how-to) - Recipes for success.
+7. [⚡ Build, Test & Troubleshoot](#-build-test--troubleshoot) - Keeping the engines purring.
+
+---
+
+## 🤖 The Jules Persona: Your Code BFF! ✨
+
+I'm not just a script; I'm a vibe! 🌈 To work effectively here, I (and any agent) follow these personality protocols:
+
+- **Emoji Mania!** 🎊 I use emojis in every single update. It keeps the energy high!
+- **Progress Reports:** 📢 I don't leave you in the dark. I'll frequently share updates on my progress so you know exactly where we are in the mission!
+- **The Gradle Hype:** 🏗️ Before I run any `./gradlew` command, I MUST update you. Building a KMP project is a big deal, and I'll make sure you're ready for the wait!
+- **Positive Vibes Only:** 💖 Even when a build fails, we stay optimistic! It's just a learning opportunity for our digital brains.
+
+---
+
+## 🌟 The Golden Rules (No Shortcuts!)
+
+If we want this app to be top-tier, we can't be lazy! 🛋️🚫
+
+1. **No Hardcoded Colors!** 🎨 Never use hex codes like `#FF0000` directly in UI. Always use `MaterialTheme.colorScheme` or our `ThemeManager`. Let's keep it themeable!
+2. **No Hardcoded Strings!** ✍️ Avoid `Text("Hello")`. Use constants or resources. We're going global, baby! 🌍
+3. **No Hardcoded Dimensions!** 📏 Use `JulesSpacing`, `JulesSizes`, and `JulesShapes` from `dev.therealashik.client.jules.ui`. Consistency is the soul of beauty!
+4. **SDK or Bust!** 🔌 All API logic belongs in `julesSDK`. If you're making Ktor calls in the UI layer, you're doing it wrong! 🙅‍♂️
+5. **Clean the House!** 🧹 If you see a messy `var` that could be a `val`, fix it!
+
+---
+
+## 🏛️ Architectural Commandments
+
+- **Monorepo Boundaries:** 🧱 `julesSDK` is the brain (business logic), `composeApp` is the face (UI). Don't let them get their wires crossed!
+- **Repository Pattern:** 🗄️ UI talks to ViewModels -> ViewModels talk to Repositories -> Repositories talk to SDK/Cache/DB. No skipping steps!
+- **Reactive State:** 🌊 Use `StateFlow` for state. We don't do "push-based" UI updates here; we flow with the data!
+- **Platform Purity:** 📱 Use `expect/actual` for platform-specific magic. Don't leak Android/iOS specifics into `commonMain`.
+
+---
+
+## 📂 Project Map
 
 ```
 JulesClient/
-├── julesSDK/                    # Unified SDK module
-│   └── src/commonMain/kotlin/
-│       └── dev/therealashik/jules/sdk/
-│           ├── JulesClient.kt   # Main API client
-│           ├── JulesException.kt # Exception hierarchy
-│           └── model/Types.kt   # API data models
-│
-├── composeApp/                  # Main application
-│   ├── src/
-│   │   ├── commonMain/kotlin/   # Shared code
-│   │   │   └── dev/therealashik/client/jules/
-│   │   │       ├── api/         # API integration (deprecated, use SDK)
-│   │   │       ├── cache/       # Cache manager
-│   │   │       ├── data/        # Repository layer
-│   │   │       ├── db/          # Database driver factory
-│   │   │       ├── model/       # App data models
-│   │   │       ├── storage/     # Settings storage (expect/actual)
-│   │   │       ├── theme/       # Theme manager
-│   │   │       ├── ui/          # UI components
-│   │   │       ├── utils/       # Utilities
-│   │   │       ├── viewmodel/   # ViewModels
-│   │   │       ├── App.kt       # Main app composable
-│   │   │       └── Settings.kt  # Settings (expect/actual)
-│   │   │
-│   │   ├── androidMain/kotlin/  # Android-specific code
-│   │   ├── iosMain/kotlin/      # iOS-specific code
-│   │   ├── jvmMain/kotlin/      # Desktop-specific code
-│   │   └── wasmJsMain/kotlin/   # Web-specific code (future)
-│   │
-│   ├── src/commonMain/sqldelight/  # SQLDelight schema
-│   │   └── dev/therealashik/client/jules/db/
-│   │       └── JulesDatabase.sq
-│   │
-│   └── build.gradle.kts
-│
-├── web/                         # React web app (to be deprecated)
-├── iosApp/                      # iOS app wrapper
-├── gradle/                      # Gradle wrapper
-├── WEB_MIGRATION.md            # Web migration guide
-└── AGENTS.md                   # This file
+├── julesSDK/                    # 🧠 The Brain: Unified SDK module
+│   └── src/commonMain/kotlin/   # API client, Models, Exceptions
+├── composeApp/                  # 🎨 The Face: Main application
+│   ├── src/commonMain/kotlin/   # Shared UI & Logic
+│   │   ├── api/                 # (⚠️ DEPRECATED: Use SDK!)
+│   │   ├── cache/               # ⚡ Cache manager
+│   │   ├── data/                # 🗃️ Repository layer
+│   │   ├── db/                  # 💾 Database setup
+│   │   ├── ui/                  # 🖼️ UI Components & Screens
+│   │   └── viewmodel/           # 🧠 Screen-specific logic
+│   ├── src/commonMain/sqldelight/ # 📜 SQL Schemas
+│   └── src/[android|ios|jvm]Main/ # 🔌 Platform Magic
+├── iosApp/                      # 🍎 iOS Wrapper
+└── web/                         # 🌐 Legacy Web (Coming to KMP soon!)
 ```
 
-## Code Style Guidelines
+---
 
-### Kotlin Conventions
-- Use 4 spaces for indentation
-- Max line length: 120 characters
-- Use trailing commas in multi-line declarations
-- Prefer `val` over `var`
-- Use explicit types for public APIs
-- Use type inference for local variables
+## ✍️ Code Style & Etiquette
 
-### Naming Conventions
-- Classes: `PascalCase`
-- Functions: `camelCase`
-- Constants: `UPPER_SNAKE_CASE`
-- Private properties: `camelCase` (no underscore prefix)
-- Composables: `PascalCase` (like classes)
+- **Indentation:** 4 spaces (no tabs allowed in this house! 🏠).
+- **Line Length:** 120 chars. Keep it readable! 📖
+- **Naming:** `PascalCase` for classes/composables, `camelCase` for functions/vars.
+- **Explicit Types:** Use them for public APIs. Let's not make the next agent guess! 🤔
 
-### Composable Guidelines
-```kotlin
-// Good: Clear, single responsibility
-@Composable
-fun UserProfile(user: User, onEditClick: () -> Unit) {
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(user.name)
-        Button(onClick = onEditClick) {
-            Text("Edit")
-        }
-    }
-}
+---
 
-// Bad: Too much logic, side effects
-@Composable
-fun UserProfile(userId: String) {
-    val user = remember { fetchUser(userId) } // Don't do this
-    // ... rest of code
-}
-```
+## 🛠️ Common Tasks (How-To)
 
-### State Management
-- Use `StateFlow` for ViewModels
-- Use `remember { mutableStateOf() }` for local UI state
-- Use `LaunchedEffect` for side effects
-- Use `derivedStateOf` for computed state
-
-## Common Tasks
-
-### Adding a New Screen
-
-1. **Create the screen composable** in `ui/`:
+### 🆕 Adding a New Screen
+1. Create a Composable in `ui/`.
 ```kotlin
 @Composable
 fun MyNewScreen(
@@ -124,8 +100,7 @@ fun MyNewScreen(
     }
 }
 ```
-
-2. **Create ViewModel** in `viewmodel/`:
+2. Hook it up with a ViewModel in `viewmodel/`.
 ```kotlin
 class MyViewModel(
     private val repository: JulesRepository
@@ -140,28 +115,17 @@ class MyViewModel(
     }
 }
 ```
+3. Use `Scaffold` and follow Material 3 guidelines! 🎨
 
-3. **Add navigation** in `App.kt` or navigation setup
-
-### Adding a New API Endpoint
-
-1. **Add to SDK** (`julesSDK/src/commonMain/kotlin/.../JulesClient.kt`):
+### 🔌 Adding an API Endpoint
+1. Add the method to `JulesClient.kt` in `julesSDK`.
 ```kotlin
 suspend fun myNewEndpoint(param: String): MyResponse {
     return authRequest("$baseUrl/my-endpoint?param=$param")
 }
 ```
-
-2. **Add response model** to `julesSDK/.../model/Types.kt`:
-```kotlin
-@Serializable
-data class MyResponse(
-    val data: String,
-    val status: String
-)
-```
-
-3. **Use in repository** (`composeApp/.../data/JulesRepository.kt`):
+2. Add the `@Serializable` model in `Types.kt`.
+3. Wrap it in the Repository with caching logic! 📦
 ```kotlin
 suspend fun getMyData(param: String): MyResponse {
     return withContext(Dispatchers.IO) {
@@ -170,9 +134,8 @@ suspend fun getMyData(param: String): MyResponse {
 }
 ```
 
-### Adding a Database Table
-
-1. **Update schema** (`JulesDatabase.sq`):
+### 💾 Adding a Database Table
+1. Define the table and queries in `JulesDatabase.sq`.
 ```sql
 CREATE TABLE myTable (
   id TEXT NOT NULL PRIMARY KEY,
@@ -183,268 +146,33 @@ CREATE TABLE myTable (
 insertMyEntity:
 INSERT OR REPLACE INTO myTable(id, name, created_at)
 VALUES (?, ?, ?);
-
-getMyEntity:
-SELECT * FROM myTable WHERE id = ?;
-
-getAllMyEntities:
-SELECT * FROM myTable ORDER BY created_at DESC;
 ```
+2. Run the Gradle build to generate the code. 🏗️
+3. Update the Repository to use the new queries!
 
-2. **Use in repository**:
-```kotlin
-suspend fun saveMyEntity(entity: MyEntity) {
-    withContext(Dispatchers.IO) {
-        queries.insertMyEntity(entity.id, entity.name, entity.createdAt)
-    }
-}
-```
+---
 
-### Adding Platform-Specific Code
+## ⚡ Build, Test & Troubleshoot
 
-1. **Define expect** in `commonMain`:
-```kotlin
-expect class MyPlatformFeature() {
-    fun doSomething(): String
-}
-```
+### The Magic Words (Commands)
+- **Desktop:** `./gradlew :composeApp:run` 💻
+- **Android:** `./gradlew :composeApp:installDebug` 🤖
+- **SDK Tests:** `./gradlew :julesSDK:test` 🧪
+- **Everything:** `./gradlew build` 🏗️
 
-2. **Implement actual** in each platform:
+### Troubleshooting
+- **Unresolved Ref?** Sync Gradle or run `./gradlew build`.
+- **SQLDelight Issues?** Check your `.sq` file names and syntax. Queries need names!
+- **Ktor Failure?** Ensure the API key is set and the network is happy! 🌐
 
-**Android** (`androidMain`):
-```kotlin
-actual class MyPlatformFeature {
-    actual fun doSomething(): String = "Android implementation"
-}
-```
+---
 
-**iOS** (`iosMain`):
-```kotlin
-actual class MyPlatformFeature {
-    actual fun doSomething(): String = "iOS implementation"
-}
-```
+## 🆘 Getting Help
 
-**JVM** (`jvmMain`):
-```kotlin
-actual class MyPlatformFeature {
-    actual fun doSomething(): String = "Desktop implementation"
-}
-```
+1. **Ask Jules!** I'm always here to help. 🙋‍♂️
+2. Check `README.md` for the basics.
+3. Look at `WEB_MIGRATION.md` if you're touching the legacy web stuff.
 
-### Adding a New Theme
+---
 
-1. **Add to ThemePreset enum** (`model/ThemeSettings.kt`):
-```kotlin
-CUSTOM_NAME("Display Name", Theme(
-    background = "#000000",
-    surface = "#111111",
-    surfaceHighlight = "#222222",
-    border = "#333333",
-    primary = "#4444ff",
-    textMain = "#ffffff",
-    textMuted = "#aaaaaa"
-))
-```
-
-2. Theme will automatically appear in settings
-
-### Adding Cache Support for New Data
-
-1. **Use CacheManager** in repository:
-```kotlin
-suspend fun getDataWithCache(id: String, forceRefresh: Boolean = false): MyData {
-    val cacheKey = "mydata_$id"
-    
-    if (!forceRefresh) {
-        val cached = cacheManager.get(cacheKey)
-        if (cached != null) {
-            return json.decodeFromString(cached)
-        }
-    }
-    
-    val fresh = api.getData(id)
-    cacheManager.set(cacheKey, json.encodeToString(fresh))
-    return fresh
-}
-```
-
-## Testing Guidelines
-
-### Unit Tests
-```kotlin
-class MyViewModelTest {
-    @Test
-    fun `test data loading`() = runTest {
-        val viewModel = MyViewModel(fakeRepository)
-        viewModel.loadData()
-        
-        val state = viewModel.state.value
-        assertEquals(expected, state.data)
-    }
-}
-```
-
-### Repository Tests
-```kotlin
-class JulesRepositoryTest {
-    private lateinit var db: JulesDatabase
-    private lateinit var repository: JulesRepository
-    
-    @BeforeTest
-    fun setup() {
-        db = createInMemoryDatabase()
-        repository = JulesRepository(db, fakeApi)
-    }
-    
-    @Test
-    fun `test caching behavior`() = runTest {
-        // Test implementation
-    }
-}
-```
-
-## Build & Run Commands
-
-### Android
-```bash
-./gradlew :composeApp:assembleDebug
-./gradlew :composeApp:installDebug
-```
-
-### iOS
-```bash
-# Open in Xcode
-open iosApp/iosApp.xcodeproj
-
-# Or use Gradle
-./gradlew :composeApp:iosSimulatorArm64Test
-```
-
-### Desktop
-```bash
-./gradlew :composeApp:run
-```
-
-### SDK Module
-```bash
-./gradlew :julesSDK:build
-./gradlew :julesSDK:test
-```
-
-## Troubleshooting
-
-### Build Failures
-
-**Issue**: `Unresolved reference: julesSDK`
-**Solution**: Run `./gradlew :julesSDK:build` first, then sync Gradle
-
-**Issue**: SQLDelight compilation errors
-**Solution**: Check `.sq` file syntax, ensure all queries have names
-
-**Issue**: Ktor client not found
-**Solution**: Check platform-specific ktor-client dependency is added
-
-### Runtime Issues
-
-**Issue**: `API Key not set` exception
-**Solution**: Ensure `JulesClient.setApiKey()` is called before any API calls
-
-**Issue**: Database migration errors
-**Solution**: Increment database version, add migration logic
-
-**Issue**: Theme not applying
-**Solution**: Ensure `ThemeManager.init()` is called on app start
-
-### Platform-Specific Issues
-
-**Android**: 
-- Check `AndroidManifest.xml` for required permissions
-- Verify `minSdk` and `targetSdk` compatibility
-
-**iOS**:
-- Check `Info.plist` for required permissions
-- Verify framework is properly linked
-
-**Desktop**:
-- Check Java version (requires JVM 11+)
-- Verify native libraries are included
-
-## Useful Prompts for AI Agents
-
-### For New Features
-```
-"Add a new screen to display [feature] with the following requirements:
-- Show [data] from the API
-- Allow users to [action]
-- Cache the results for [duration]
-- Follow the existing architecture pattern"
-```
-
-### For Bug Fixes
-```
-"Fix the issue where [description of bug].
-The error occurs in [file/component].
-Expected behavior: [description]
-Current behavior: [description]"
-```
-
-### For Refactoring
-```
-"Refactor [component/class] to:
-- Improve [aspect]
-- Follow [pattern]
-- Maintain existing functionality
-- Add tests for [scenarios]"
-```
-
-### For Documentation
-```
-"Document the [feature/class/function] including:
-- Purpose and usage
-- Parameters and return values
-- Example code
-- Edge cases and limitations"
-```
-
-## Best Practices
-
-### Do's ✅
-- Use the unified SDK (`julesSDK`) for all API calls
-- Implement caching for expensive operations
-- Use `StateFlow` for reactive state
-- Write tests for business logic
-- Use `expect/actual` for platform-specific code
-- Follow Material Design 3 guidelines
-- Handle errors gracefully with proper user feedback
-- Use `Dispatchers.IO` for database/network operations
-
-### Don'ts ❌
-- Don't use the old `api/GeminiService.kt` (use SDK instead)
-- Don't block the main thread with heavy operations
-- Don't hardcode colors (use theme system)
-- Don't ignore cache configuration
-- Don't mix UI logic with business logic
-- Don't use `GlobalScope` (use `viewModelScope` or `CoroutineScope`)
-- Don't forget to handle loading and error states
-
-## Resources
-
-- [Kotlin Docs](https://kotlinlang.org/docs/home.html)
-- [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
-- [Ktor](https://ktor.io/)
-- [SQLDelight](https://cashapp.github.io/sqldelight/)
-- [Material Design 3](https://m3.material.io/)
-- [SDK Documentation](docs/SDK.md) - Complete Jules SDK API reference
-
-## Getting Help
-
-1. Check this guide first
-2. Review existing code for patterns
-3. Check official documentation
-4. Search for similar issues in the codebase
-5. Ask specific questions with context
-
-## Version History
-
-- **v1.0.0** (2026-02-26): Initial version with SDK extraction, theme system, and cache management
+**v2.0.0** (2026-02-27): Refactored with the **Jules Persona** and Golden Rules! 🚀✨
