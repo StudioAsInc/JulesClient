@@ -10,7 +10,12 @@ import dev.therealashik.client.jules.model.CreateSessionConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -22,6 +27,8 @@ class JulesRepository(
 ) {
     private val queries = db.julesDatabaseQueries
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+
+    private var backgroundRefreshJob: Job? = null
 
     // SOURCES
     val sources: Flow<List<JulesSource>> = queries.selectAllSources()
@@ -249,11 +256,43 @@ class JulesRepository(
                 // Warm sessions
                 refreshSessions(forceNetwork = true)
                 
-                // TODO: Add selective cache warming for frequently accessed sessions
-                // TODO: Implement background cache refresh strategy
+                // Add selective cache warming for frequently accessed sessions
+                // We'll warm up activities for the 5 most recently updated sessions.
+                val recentSessions = queries.selectAllSessions()
+                    .executeAsList()
+                    .take(5)
+
+                recentSessions.forEach { session ->
+                    try {
+                        refreshActivities(session.name, forceNetwork = true)
+                    } catch (e: Exception) {
+                        println("Failed to warm activities for session ${session.name}: $e")
+                    }
+                }
             } catch (e: Exception) {
                 println("Cache warming failed: $e")
             }
         }
+    }
+
+    // BACKGROUND CACHE REFRESH STRATEGY
+    fun startBackgroundRefresh(scope: CoroutineScope, intervalMs: Long = 15 * 60 * 1000L) {
+        stopBackgroundRefresh()
+        backgroundRefreshJob = scope.launch(Dispatchers.IO) {
+            while (isActive) {
+                // Initial delay to avoid slowing down startup
+                delay(intervalMs)
+                try {
+                    warmCache()
+                } catch (e: Exception) {
+                    println("Background refresh cycle failed: $e")
+                }
+            }
+        }
+    }
+
+    fun stopBackgroundRefresh() {
+        backgroundRefreshJob?.cancel()
+        backgroundRefreshJob = null
     }
 }
