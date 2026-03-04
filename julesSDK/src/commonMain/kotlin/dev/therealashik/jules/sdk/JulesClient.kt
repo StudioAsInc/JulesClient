@@ -1,12 +1,12 @@
 package dev.therealashik.jules.sdk
 
 import dev.therealashik.jules.sdk.model.*
+import dev.therealashik.jules.sdk.utils.RateLimiter
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.timeout
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -14,40 +14,24 @@ import kotlinx.coroutines.delay
 import kotlinx.serialization.json.*
 import kotlin.math.pow
 
-interface JulesLogger {
-    fun log(message: String)
-}
-
-object DefaultJulesLogger : JulesLogger {
-    override fun log(message: String) {
-        println(message)
-    }
-}
-
 class JulesClient(
     private var apiKey: String = "",
     private var baseUrl: String = "https://jules.googleapis.com/v1alpha",
     private val maxRetries: Int = 3,
     private val timeoutMs: Long = 30000,
     private val debugMode: Boolean = false,
-    private val logger: JulesLogger = DefaultJulesLogger
+    requestsPerMinute: Int = 60
 ) {
     companion object {
         const val SDK_VERSION = "1.0.0"
     }
 
-    // TODO: Implement rate limiting to prevent API quota exhaustion
+    private val rateLimiter = RateLimiter(requestsPerMinute)
+
+    // TODO: Add request/response interceptors for logging and monitoring
     // TODO: Add WebSocket support for real-time activity streaming
     private val client = HttpClient {
         install(HttpTimeout)
-        install(Logging) {
-            logger = object : Logger {
-                override fun log(message: String) {
-                    this@JulesClient.logger.log(message)
-                }
-            }
-            level = if (debugMode) LogLevel.ALL else LogLevel.NONE
-        }
         install(ContentNegotiation) {
             json(Json {
                 ignoreUnknownKeys = true
@@ -77,12 +61,14 @@ class JulesClient(
     ): T {
         if (apiKey.isEmpty()) throw JulesException.AuthError("API Key not set")
 
+        rateLimiter.acquire()
+
         var lastException: Exception? = null
         
         repeat(retries) { attempt ->
             try {
                 if (debugMode && attempt > 0) {
-                    logger.log("[JulesSDK] Retry attempt $attempt for $urlString")
+                    println("[JulesSDK] Retry attempt $attempt for $urlString")
                 }
 
                 val response = client.request(urlString) {
@@ -123,7 +109,7 @@ class JulesClient(
                 if (attempt < retries - 1) {
                     val delayMs = (100 * 2.0.pow(attempt)).toLong()
                     if (debugMode) {
-                        logger.log("[JulesSDK] Network error, retrying in ${delayMs}ms: ${e.message}")
+                        println("[JulesSDK] Network error, retrying in ${delayMs}ms: ${e.message}")
                     }
                     delay(delayMs)
                 } else {
