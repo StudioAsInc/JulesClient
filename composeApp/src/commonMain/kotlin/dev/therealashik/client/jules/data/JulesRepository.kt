@@ -10,11 +10,13 @@ import dev.therealashik.client.jules.model.CreateSessionConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
@@ -28,6 +30,7 @@ class JulesRepository(
     private val queries = db.julesDatabaseQueries
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
 
+    private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var backgroundRefreshJob: Job? = null
 
     // SOURCES
@@ -250,23 +253,26 @@ class JulesRepository(
     suspend fun warmCache() {
         withContext(Dispatchers.IO) {
             try {
-                // Warm sources
-                refreshSources(forceNetwork = true)
-                
-                // Warm sessions
-                refreshSessions(forceNetwork = true)
-                
-                // Add selective cache warming for frequently accessed sessions
-                // We'll warm up activities for the 5 most recently updated sessions.
-                val recentSessions = queries.selectAllSessions()
-                    .executeAsList()
-                    .take(5)
+                coroutineScope {
+                    // Warm sources and sessions concurrently
+                    val sourcesDeferred = async { refreshSources(forceNetwork = true) }
+                    val sessionsDeferred = async { refreshSessions(forceNetwork = true) }
 
-                recentSessions.forEach { session ->
-                    try {
-                        refreshActivities(session.name, forceNetwork = true)
-                    } catch (e: Exception) {
-                        println("Failed to warm activities for session ${session.name}: $e")
+                    sourcesDeferred.await()
+                    sessionsDeferred.await()
+
+                    // Selective cache warming for frequently accessed sessions
+                    // Get the 3 most recently updated sessions
+                    val recentSessions = queries.selectAllSessions().executeAsList().take(3)
+
+                    recentSessions.forEach { sessionEntity ->
+                        launch {
+                            try {
+                                refreshActivities(sessionEntity.name, forceNetwork = true)
+                            } catch (e: Exception) {
+                                println("Failed to warm activities for ${sessionEntity.name}: $e")
+                            }
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -275,18 +281,17 @@ class JulesRepository(
         }
     }
 
-    // BACKGROUND CACHE REFRESH STRATEGY
-    fun startBackgroundRefresh(scope: CoroutineScope, intervalMs: Long = 15 * 60 * 1000L) {
-        stopBackgroundRefresh()
-        backgroundRefreshJob = scope.launch(Dispatchers.IO) {
-            while (isActive) {
-                // Initial delay to avoid slowing down startup
-                delay(intervalMs)
+    fun startBackgroundRefresh(intervalMs: Long = 15 * 60 * 1000L) {
+        if (backgroundRefreshJob?.isActive == true) return
+
+        backgroundRefreshJob = repositoryScope.launch {
+            while (true) {
                 try {
                     warmCache()
                 } catch (e: Exception) {
-                    println("Background refresh cycle failed: $e")
+                    println("Background refresh iteration failed: $e")
                 }
+                delay(intervalMs)
             }
         }
     }
