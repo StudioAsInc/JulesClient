@@ -6,14 +6,11 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.timeout
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.websocket.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.serialization.kotlinx.*
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.*
 import kotlin.math.pow
 
@@ -28,21 +25,24 @@ class JulesClient(
         const val SDK_VERSION = "1.0.0"
     }
 
-    // TODO: Add request/response interceptors for logging and monitoring
     // TODO: Implement rate limiting to prevent API quota exhaustion
-    private val jsonConfig = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-        encodeDefaults = true
-    }
-
+    // TODO: Add WebSocket support for real-time activity streaming
     private val client = HttpClient {
         install(HttpTimeout)
         install(ContentNegotiation) {
-            json(jsonConfig)
+            json(Json {
+                ignoreUnknownKeys = true
+                isLenient = true
+                encodeDefaults = true
+            })
         }
-        install(WebSockets) {
-            contentConverter = KotlinxWebsocketSerializationConverter(jsonConfig)
+        install(Logging) {
+            logger = object : Logger {
+                override fun log(message: String) {
+                    println("[JulesSDK] $message")
+                }
+            }
+            level = if (debugMode) LogLevel.ALL else LogLevel.NONE
         }
     }
 
@@ -93,7 +93,7 @@ class JulesClient(
 
                 val errorBody = response.body<String>()
                 val errorMessage = try {
-                    val element = jsonConfig.decodeFromString<JsonElement>(errorBody)
+                    val element = Json { ignoreUnknownKeys = true }.decodeFromString<JsonElement>(errorBody)
                     element.jsonObject["error"]?.jsonObject?.get("message")?.jsonPrimitive?.content
                 } catch (e: Exception) {
                     null
@@ -231,48 +231,6 @@ class JulesClient(
             if (pageToken != null) append("&pageToken=$pageToken")
         }
         return authRequest("$baseUrl/$cleanName/activities$params")
-    }
-
-    suspend fun streamActivities(sessionName: String): Flow<JulesActivity> = flow {
-        if (apiKey.isEmpty()) throw JulesException.AuthError("API Key not set")
-        val cleanName = if (sessionName.startsWith("sessions/")) sessionName else "sessions/$sessionName"
-        val wsUrl = "$baseUrl/$cleanName/activities:stream".replaceFirst("http", "ws")
-
-        var attempt = 0
-        while (true) {
-            try {
-                if (debugMode && attempt > 0) {
-                    println("[JulesSDK] WebSocket retry attempt $attempt for $wsUrl")
-                }
-
-                client.webSocket(
-                    urlString = wsUrl,
-                    request = {
-                        header("X-Goog-Api-Key", apiKey)
-                        header("User-Agent", "JulesSDK/$SDK_VERSION")
-                    }
-                ) {
-                    attempt = 0 // Reset attempt counter on successful connection
-                    while (true) {
-                        val activity = receiveDeserialized<JulesActivity>()
-                        emit(activity)
-                    }
-                }
-            } catch (e: JulesException) {
-                throw e
-            } catch (e: Exception) {
-                if (attempt < maxRetries - 1) {
-                    attempt++
-                    val delayMs = (100 * 2.0.pow(attempt)).toLong()
-                    if (debugMode) {
-                        println("[JulesSDK] WebSocket connection error, retrying in ${delayMs}ms: ${e.message}")
-                    }
-                    delay(delayMs)
-                } else {
-                    throw JulesException.NetworkError("WebSocket connection failed after $maxRetries attempts", e)
-                }
-            }
-        }
     }
 
     suspend fun sendMessage(sessionName: String, prompt: String) {
