@@ -14,13 +14,23 @@ import kotlinx.coroutines.delay
 import kotlinx.serialization.json.*
 import kotlin.math.pow
 
+interface JulesLogger {
+    fun log(message: String)
+}
+
+object DefaultJulesLogger : JulesLogger {
+    override fun log(message: String) {
+        println(message)
+    }
+}
+
 class JulesClient(
     private var apiKey: String = "",
     private var baseUrl: String = "https://jules.googleapis.com/v1alpha",
     private val maxRetries: Int = 3,
     private val timeoutMs: Long = 30000,
     private val debugMode: Boolean = false,
-    private val httpClient: HttpClient? = null
+    private val logger: JulesLogger = DefaultJulesLogger
 ) {
     companion object {
         const val SDK_VERSION = "1.0.0"
@@ -28,22 +38,22 @@ class JulesClient(
 
     // TODO: Implement rate limiting to prevent API quota exhaustion
     // TODO: Add WebSocket support for real-time activity streaming
-    private val client = httpClient ?: HttpClient {
+    private val client = HttpClient {
         install(HttpTimeout)
+        install(Logging) {
+            logger = object : Logger {
+                override fun log(message: String) {
+                    this@JulesClient.logger.log(message)
+                }
+            }
+            level = if (debugMode) LogLevel.ALL else LogLevel.NONE
+        }
         install(ContentNegotiation) {
             json(Json {
                 ignoreUnknownKeys = true
                 isLenient = true
                 encodeDefaults = true
             })
-        }
-        install(Logging) {
-            logger = object : Logger {
-                override fun log(message: String) {
-                    println("[JulesSDK] $message")
-                }
-            }
-            level = if (debugMode) LogLevel.ALL else LogLevel.NONE
         }
     }
 
@@ -72,7 +82,7 @@ class JulesClient(
         repeat(retries) { attempt ->
             try {
                 if (debugMode && attempt > 0) {
-                    println("[JulesSDK] Retry attempt $attempt for $urlString")
+                    logger.log("[JulesSDK] Retry attempt $attempt for $urlString")
                 }
 
                 val response = client.request(urlString) {
@@ -113,7 +123,7 @@ class JulesClient(
                 if (attempt < retries - 1) {
                     val delayMs = (100 * 2.0.pow(attempt)).toLong()
                     if (debugMode) {
-                        println("[JulesSDK] Network error, retrying in ${delayMs}ms: ${e.message}")
+                        logger.log("[JulesSDK] Network error, retrying in ${delayMs}ms: ${e.message}")
                     }
                     delay(delayMs)
                 } else {
