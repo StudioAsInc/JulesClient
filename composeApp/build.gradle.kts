@@ -33,7 +33,8 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
-            linkerOpts("-lsqlite3")
+            // Required for SQLDelight
+            linkerOpts.add("-lsqlite3")
         }
     }
 
