@@ -17,7 +17,8 @@ class CacheManagerTest {
         val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         JulesDatabase.Schema.create(driver)
         val database = JulesDatabase(driver)
-        val cacheManager = CacheManager(database, CacheConfig(), backgroundScope)
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlin.coroutines.EmptyCoroutineContext)
+        val cacheManager = CacheManager(database, CacheConfig(), scope)
 
         // Set up initial data
         cacheManager.set("user_1", "value1")

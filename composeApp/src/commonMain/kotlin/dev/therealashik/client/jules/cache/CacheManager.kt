@@ -82,8 +82,8 @@ class CacheManager(
         updateStats()
     }
 
-    suspend fun getTopAccessedKeysByPrefix(prefix: String, limit: Long): List<String> = withContext(Dispatchers.IO) {
-        queries.getTopAccessedKeysByPrefix("$prefix%", limit).executeAsList()
+    suspend fun getFrequentlyAccessedKeys(prefix: String, limit: Long): List<String> = withContext(Dispatchers.IO) {
+        queries.getFrequentlyAccessedKeys("$prefix%", limit).executeAsList()
     }
 
     private suspend fun pruneExpired() = withContext(Dispatchers.IO) {

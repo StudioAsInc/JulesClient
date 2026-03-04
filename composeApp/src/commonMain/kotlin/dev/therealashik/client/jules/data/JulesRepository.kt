@@ -258,7 +258,16 @@ class JulesRepository(
                     sessionsDeferred.await()
                 }
                 
-                // TODO: Add selective cache warming for frequently accessed sessions
+                // Warm frequently accessed sessions and their activities
+                val frequentlyAccessedKeys = cache.getFrequentlyAccessedKeys("session_", limit = 5)
+                frequentlyAccessedKeys.forEach { key ->
+                    val sessionId = key.removePrefix("session_")
+                    if (sessionId.isNotEmpty()) {
+                        getSession(sessionId, forceNetwork = true)
+                        refreshActivities(sessionId, forceNetwork = true)
+                    }
+                }
+
                 // TODO: Implement background cache refresh strategy
             } catch (e: Exception) {
                 println("Cache warming failed: $e")

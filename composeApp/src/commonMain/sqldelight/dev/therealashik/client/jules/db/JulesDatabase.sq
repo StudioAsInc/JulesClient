@@ -112,6 +112,9 @@ DELETE FROM cacheEntry WHERE key IN (
 incrementAccessCount:
 UPDATE cacheEntry SET access_count = access_count + 1 WHERE key = ?;
 
+getFrequentlyAccessedKeys:
+SELECT key FROM cacheEntry WHERE key LIKE :prefix ORDER BY access_count DESC LIMIT :limit;
+
 getCacheMetadata:
 SELECT * FROM cacheMetadata WHERE id = 1;
 
