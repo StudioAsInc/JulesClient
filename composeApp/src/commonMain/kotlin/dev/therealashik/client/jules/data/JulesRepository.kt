@@ -249,7 +249,18 @@ class JulesRepository(
                 // Warm sessions
                 refreshSessions(forceNetwork = true)
                 
-                // TODO: Add selective cache warming for frequently accessed sessions
+                // Add selective cache warming for frequently accessed sessions
+                val topSessionKeys = cache.getTopAccessedKeysByPrefix("session_", 5)
+                topSessionKeys.forEach { key ->
+                    val sessionId = key.removePrefix("session_")
+                    try {
+                        getSession(sessionId, forceNetwork = true)
+                        refreshActivities(sessionId, forceNetwork = true)
+                    } catch (e: Exception) {
+                        println("Failed to warm cache for session $sessionId: $e")
+                    }
+                }
+
                 // TODO: Implement background cache refresh strategy
             } catch (e: Exception) {
                 println("Cache warming failed: $e")
