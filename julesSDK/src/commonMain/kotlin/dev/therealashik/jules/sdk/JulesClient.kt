@@ -1,7 +1,6 @@
 package dev.therealashik.jules.sdk
 
 import dev.therealashik.jules.sdk.model.*
-import dev.therealashik.jules.sdk.utils.RateLimiter
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.HttpTimeout
@@ -20,15 +19,14 @@ class JulesClient(
     private val maxRetries: Int = 3,
     private val timeoutMs: Long = 30000,
     private val debugMode: Boolean = false,
-    requestsPerMinute: Int = 60
+    private val logger: JulesLogger = DefaultJulesLogger()
 ) {
     companion object {
         const val SDK_VERSION = "1.0.0"
     }
 
-    private val rateLimiter = RateLimiter(requestsPerMinute)
-
     // TODO: Add request/response interceptors for logging and monitoring
+    // TODO: Implement rate limiting to prevent API quota exhaustion
     // TODO: Add WebSocket support for real-time activity streaming
     private val client = HttpClient {
         install(HttpTimeout)
@@ -61,14 +59,12 @@ class JulesClient(
     ): T {
         if (apiKey.isEmpty()) throw JulesException.AuthError("API Key not set")
 
-        rateLimiter.acquire()
-
         var lastException: Exception? = null
         
         repeat(retries) { attempt ->
             try {
                 if (debugMode && attempt > 0) {
-                    println("[JulesSDK] Retry attempt $attempt for $urlString")
+                    logger.log("[JulesSDK] Retry attempt $attempt for $urlString")
                 }
 
                 val response = client.request(urlString) {
@@ -109,7 +105,7 @@ class JulesClient(
                 if (attempt < retries - 1) {
                     val delayMs = (100 * 2.0.pow(attempt)).toLong()
                     if (debugMode) {
-                        println("[JulesSDK] Network error, retrying in ${delayMs}ms: ${e.message}")
+                        logger.log("[JulesSDK] Network error, retrying in ${delayMs}ms: ${e.message}")
                     }
                     delay(delayMs)
                 } else {
