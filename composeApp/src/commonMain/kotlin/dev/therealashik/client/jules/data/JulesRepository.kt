@@ -189,7 +189,8 @@ class JulesRepository(
                         queries.insertActivity(name, sessionId, jsonBlob, createTime)
                     }
                 }
-                cache.set(cacheKey, json.encodeToString(allActivities))
+                val activitiesJsonArray = "[" + encodedActivities.joinToString(",") { it.second } + "]"
+                cache.set(cacheKey, activitiesJsonArray)
 
                 // Also refresh the session details itself
                 // Optimized: Using getSession which has caching logic
