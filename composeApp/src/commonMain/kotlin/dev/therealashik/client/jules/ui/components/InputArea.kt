@@ -330,8 +330,6 @@ fun InputArea(
                                     )
                                 ) {
                                     Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp))
-                                    Spacer(Modifier.width(4.dp))
-                                    Text("Add", fontSize = 12.sp)
                                 }
 
                                 // Repository Selector (Chip Style)
@@ -339,16 +337,16 @@ fun InputArea(
                                     AssistChip(
                                         onClick = { isRepoMenuOpen = true },
                                         label = {
+                                            val displayName = currentSource?.displayName ?: currentSource?.name ?: "Select Repo"
+                                            val repoName = displayName.replaceFirst(Regex("^(?i)Source/"), "")
                                             Text(
-                                                currentSource?.displayName ?: currentSource?.name ?: "Select Repo",
+                                                repoName,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis,
                                                 modifier = Modifier.widthIn(max = 100.dp),
                                                 fontSize = 12.sp
                                             )
                                         },
-                                        leadingIcon = { Icon(Icons.Default.Terminal, null, modifier = Modifier.size(14.dp)) },
-                                        trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, modifier = Modifier.size(14.dp)) },
                                         colors = AssistChipDefaults.assistChipColors(
                                             containerColor = Color.Transparent,
                                             labelColor = MaterialTheme.colorScheme.onSurface
@@ -439,8 +437,6 @@ fun InputArea(
                                                 fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
                                             )
                                         },
-                                        leadingIcon = { Icon(Icons.Default.AccountTree, null, modifier = Modifier.size(14.dp)) },
-                                        trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, modifier = Modifier.size(14.dp)) },
                                         colors = AssistChipDefaults.assistChipColors(
                                             containerColor = Color.Transparent,
                                             labelColor = MaterialTheme.colorScheme.onSurface
