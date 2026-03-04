@@ -511,7 +511,6 @@ class SharedViewModel(
             }
             return true
         } catch (e: Exception) {
-            println("Polling error: $e")
             return false
         }
     }
