@@ -128,7 +128,7 @@ class ThemeManager(
 
     suspend fun exportAllThemes(): String = withContext(Dispatchers.IO) {
         val themes = queries.getAllCustomThemes().executeAsList()
-        json.encodeToString(themes.map { json.decodeFromString<Theme>(it.theme_json) })
+        "[${themes.joinToString(",") { it.theme_json }}]"
     }
 
     suspend fun importTheme(name: String, themeJson: String): Result<CustomTheme> = withContext(Dispatchers.IO) {
