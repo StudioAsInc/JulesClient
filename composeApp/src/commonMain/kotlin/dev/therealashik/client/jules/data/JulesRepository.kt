@@ -195,7 +195,6 @@ class JulesRepository(
                 // Optimized: Using getSession which has caching logic
                 getSession(sessionId, forceNetwork = forceNetwork)
             } catch (e: Exception) {
-                println("Failed to refresh activities: $e")
                 throw e
             }
         }
