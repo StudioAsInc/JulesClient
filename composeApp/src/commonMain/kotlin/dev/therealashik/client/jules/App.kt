@@ -15,6 +15,7 @@ import dev.therealashik.client.jules.ui.screens.HomeView
 import dev.therealashik.client.jules.ui.screens.RepositoryView
 import dev.therealashik.client.jules.ui.screens.SessionView
 import dev.therealashik.client.jules.ui.screens.SettingsScreen
+import dev.therealashik.client.jules.ui.screens.ThemeEditorScreen
 import androidx.compose.material3.MaterialTheme
 import dev.therealashik.client.jules.viewmodel.Screen
 import dev.therealashik.client.jules.viewmodel.SharedViewModel
@@ -136,7 +137,16 @@ fun JulesAppContent(viewModel: SharedViewModel) {
                             apiKey = state.apiKey ?: "",
                             onApiKeyChange = { viewModel.setApiKey(it) },
                             onNavigateBack = { viewModel.navigateBack() },
-                            onEditTheme = {} // TODO: Implement navigation to theme editor
+                            onEditTheme = { theme -> viewModel.navigateToThemeEditor(theme?.id) }
+                        )
+                    }
+                    is Screen.ThemeEditor -> {
+                        val customThemes by JulesData.themeManager.customThemes.collectAsState()
+                        val existingTheme = customThemes.find { it.id == screen.themeId }
+                        ThemeEditorScreen(
+                            themeManager = JulesData.themeManager,
+                            existingTheme = existingTheme,
+                            onNavigateBack = { viewModel.navigateBack() }
                         )
                     }
                 }

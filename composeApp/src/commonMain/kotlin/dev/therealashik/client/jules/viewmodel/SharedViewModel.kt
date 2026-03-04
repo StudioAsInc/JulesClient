@@ -35,6 +35,7 @@ sealed class Screen {
     data class Session(val sessionId: String) : Screen()
     data class Repository(val sourceId: String) : Screen()
     data object Settings : Screen()
+    data class ThemeEditor(val themeId: String? = null) : Screen()
 }
 
 data class JulesUiState(
@@ -326,6 +327,10 @@ class SharedViewModel(
         _uiState.update { it.copy(currentScreen = Screen.Settings) }
     }
 
+    fun navigateToThemeEditor(themeId: String? = null) {
+        _uiState.update { it.copy(currentScreen = Screen.ThemeEditor(themeId)) }
+    }
+
     fun updateDefaultCardState(expanded: Boolean) {
         Settings.saveBoolean("default_card_state", expanded)
         _uiState.update { it.copy(defaultCardState = expanded) }
@@ -371,6 +376,9 @@ class SharedViewModel(
                     stopPolling()
                     activitiesJob?.cancel()
                     state.copy(currentScreen = Screen.Home, currentSession = null)
+                }
+                is Screen.ThemeEditor -> {
+                    state.copy(currentScreen = Screen.Settings)
                 }
                 else -> state // Already at home or can't go back
             }
