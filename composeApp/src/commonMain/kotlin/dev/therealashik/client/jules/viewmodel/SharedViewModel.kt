@@ -9,6 +9,7 @@ import dev.therealashik.client.jules.data.JulesData
 import dev.therealashik.client.jules.data.JulesRepository
 import dev.therealashik.jules.sdk.model.*
 import dev.therealashik.client.jules.model.ThemePreset
+import dev.therealashik.client.jules.model.CustomTheme
 import dev.therealashik.client.jules.model.CreateSessionConfig
 import dev.therealashik.client.jules.utils.TimeUtils
 import kotlinx.datetime.DateTimeUnit
