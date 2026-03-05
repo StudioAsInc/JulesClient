@@ -88,25 +88,21 @@ class CacheManager(
 
     private suspend fun pruneExpired() = withContext(Dispatchers.IO) {
         val now = TimeUtils.now()
-        queries.pruneExpiredCache(now)
-        queries.updateCacheMetadata(
-            queries.getCacheSize().executeAsOne(),
-            queries.getCacheCount().executeAsOne(),
-            now,
-            queries.getCacheMetadata().executeAsOneOrNull()?.hit_count ?: 0,
-            queries.getCacheMetadata().executeAsOneOrNull()?.miss_count ?: 0
-        )
+        queries.transaction {
+            queries.pruneExpiredCache(now)
+            queries.updateCacheMetadataPruned(now)
+        }
         updateStats()
     }
 
     private fun loadStats(): CacheStats {
-        val metadata = queries.getCacheMetadata().executeAsOneOrNull()
+        val stats = queries.getCombinedCacheStats().executeAsOne()
         return CacheStats(
-            totalSizeBytes = queries.getCacheSize().executeAsOne(),
-            entryCount = queries.getCacheCount().executeAsOne().toInt(),
-            hitCount = metadata?.hit_count ?: 0,
-            missCount = metadata?.miss_count ?: 0,
-            lastPruned = metadata?.last_pruned ?: 0,
+            totalSizeBytes = stats.total_size,
+            entryCount = stats.entry_count.toInt(),
+            hitCount = stats.hit_count,
+            missCount = stats.miss_count,
+            lastPruned = stats.last_pruned,
             lastCleared = 0
         )
     }
