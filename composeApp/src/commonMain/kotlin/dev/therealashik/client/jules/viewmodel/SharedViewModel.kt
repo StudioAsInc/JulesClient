@@ -9,6 +9,7 @@ import dev.therealashik.client.jules.data.JulesData
 import dev.therealashik.client.jules.data.JulesRepository
 import dev.therealashik.jules.sdk.model.*
 import dev.therealashik.client.jules.model.ThemePreset
+import dev.therealashik.client.jules.model.CustomTheme
 import dev.therealashik.client.jules.model.CreateSessionConfig
 import dev.therealashik.client.jules.utils.TimeUtils
 import kotlinx.datetime.DateTimeUnit
@@ -35,6 +36,7 @@ sealed class Screen {
     data class Session(val sessionId: String) : Screen()
     data class Repository(val sourceId: String) : Screen()
     data object Settings : Screen()
+    data class ThemeEditor(val theme: CustomTheme? = null) : Screen()
 }
 
 data class JulesUiState(
@@ -324,6 +326,10 @@ class SharedViewModel(
         _uiState.update { it.copy(currentScreen = Screen.Settings) }
     }
 
+    fun navigateToThemeEditor(theme: CustomTheme? = null) {
+        _uiState.update { it.copy(currentScreen = Screen.ThemeEditor(theme)) }
+    }
+
     fun updateDefaultCardState(expanded: Boolean) {
         Settings.saveBoolean("default_card_state", expanded)
         _uiState.update { it.copy(defaultCardState = expanded) }
@@ -369,6 +375,9 @@ class SharedViewModel(
                     stopPolling()
                     activitiesJob?.cancel()
                     state.copy(currentScreen = Screen.Home, currentSession = null)
+                }
+                is Screen.ThemeEditor -> {
+                    state.copy(currentScreen = Screen.Settings)
                 }
                 else -> state // Already at home or can't go back
             }
