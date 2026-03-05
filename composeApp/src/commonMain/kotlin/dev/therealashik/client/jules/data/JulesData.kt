@@ -35,8 +35,6 @@ object JulesData {
     }
 
     val repository: JulesRepository by lazy {
-        JulesRepository(database, RealJulesApi, cacheManager).apply {
-            startBackgroundRefresh(cacheScope)
-        }
+        JulesRepository(database, RealJulesApi, cacheManager)
     }
 }
