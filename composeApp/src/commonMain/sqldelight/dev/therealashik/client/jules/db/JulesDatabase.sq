@@ -119,6 +119,25 @@ updateCacheMetadata:
 INSERT OR REPLACE INTO cacheMetadata(id, total_size, entry_count, last_pruned, hit_count, miss_count)
 VALUES (1, ?, ?, ?, ?, ?);
 
+updateCacheMetadataPruned:
+INSERT OR REPLACE INTO cacheMetadata(id, total_size, entry_count, last_pruned, hit_count, miss_count)
+VALUES (
+  1,
+  (SELECT COALESCE(SUM(size_bytes), 0) FROM cacheEntry),
+  (SELECT COUNT(*) FROM cacheEntry),
+  :now,
+  COALESCE((SELECT hit_count FROM cacheMetadata WHERE id = 1), 0),
+  COALESCE((SELECT miss_count FROM cacheMetadata WHERE id = 1), 0)
+);
+
+getCombinedCacheStats:
+SELECT
+  (SELECT COALESCE(SUM(size_bytes), 0) FROM cacheEntry) AS total_size,
+  (SELECT COUNT(*) FROM cacheEntry) AS entry_count,
+  COALESCE((SELECT hit_count FROM cacheMetadata WHERE id = 1), 0) AS hit_count,
+  COALESCE((SELECT miss_count FROM cacheMetadata WHERE id = 1), 0) AS miss_count,
+  COALESCE((SELECT last_pruned FROM cacheMetadata WHERE id = 1), 0) AS last_pruned;
+
 incrementHitCount:
 UPDATE cacheMetadata SET hit_count = hit_count + 1 WHERE id = 1;
 
