@@ -36,7 +36,7 @@ sealed class Screen {
     data class Session(val sessionId: String) : Screen()
     data class Repository(val sourceId: String) : Screen()
     data object Settings : Screen()
-    data class ThemeEditor(val theme: CustomTheme? = null) : Screen()
+    data class ThemeEditor(val themeId: String? = null) : Screen()
 }
 
 data class JulesUiState(
@@ -75,6 +75,10 @@ class SharedViewModel(
     private var activitiesJob: Job? = null
 
     init {
+        observeDatabase()
+    }
+
+    private fun observeDatabase() {
         // Observe sessions and sources from DB
         repository.sessions.onEach { sessions ->
             _uiState.update {
@@ -117,15 +121,9 @@ class SharedViewModel(
         // Save serialized accounts JSON string
         Settings.saveString("api_key", key)
         if (accounts.isNotEmpty()) {
-            val accountsJson = kotlinx.serialization.json.Json.encodeToString(
-                kotlinx.serialization.builtins.ListSerializer(dev.therealashik.client.jules.model.Account.serializer()),
-                accounts
-            )
-            Settings.saveString("accounts", accountsJson)
-            Settings.saveString("active_account_id", activeId)
+            saveAccounts(accounts, activeId)
         } else {
-            Settings.saveString("accounts", "[]")
-            Settings.saveString("active_account_id", "")
+            saveAccounts(emptyList(), null)
         }
 
         _uiState.update { it.copy(apiKey = key, accounts = accounts, activeAccountId = if (key.isNotBlank()) activeId else null) }
@@ -237,7 +235,17 @@ class SharedViewModel(
     }
 
     private fun loadInitialData() {
-        // Load settings
+        loadSettings()
+        loadAccounts()
+
+        if (api.getApiKey().isBlank()) {
+             return
+        }
+
+        refreshAll()
+    }
+
+    private fun loadSettings() {
         val savedCardState = Settings.getBoolean("default_card_state", false)
         val savedThemeStr = Settings.getString("theme", ThemePreset.MIDNIGHT.name)
         val savedTheme = try {
@@ -245,8 +253,10 @@ class SharedViewModel(
         } catch (e: Exception) {
             ThemePreset.MIDNIGHT
         }
-        
-        // Load Accounts
+        _uiState.update { it.copy(defaultCardState = savedCardState, currentTheme = savedTheme) }
+    }
+
+    private fun loadAccounts() {
         val accountsJson = Settings.getString("accounts", "[]")
         val savedAccounts = try {
             kotlinx.serialization.json.Json.decodeFromString(
@@ -275,14 +285,6 @@ class SharedViewModel(
                  _uiState.update { it.copy(apiKey = savedKey, accounts = accounts, activeAccountId = "default") }
             }
         }
-
-        _uiState.update { it.copy(defaultCardState = savedCardState, currentTheme = savedTheme) }
-
-        if (api.getApiKey().isBlank()) {
-             return
-        }
-
-        refreshAll()
     }
 
     private fun refreshAll() {
@@ -326,8 +328,8 @@ class SharedViewModel(
         _uiState.update { it.copy(currentScreen = Screen.Settings) }
     }
 
-    fun navigateToThemeEditor(theme: CustomTheme? = null) {
-        _uiState.update { it.copy(currentScreen = Screen.ThemeEditor(theme)) }
+    fun navigateToThemeEditor(themeId: String? = null) {
+        _uiState.update { it.copy(currentScreen = Screen.ThemeEditor(themeId)) }
     }
 
     fun updateDefaultCardState(expanded: Boolean) {
@@ -365,6 +367,41 @@ class SharedViewModel(
         }.launchIn(viewModelScope)
 
         startPolling(session.name)
+    }
+
+    fun handleDeepLink(url: String) {
+        val prefix = "jules://"
+        if (url.startsWith(prefix)) {
+            val path = url.removePrefix(prefix)
+            val parts = path.split("/")
+            if (parts.isNotEmpty()) {
+                when (parts[0]) {
+                    "session" -> {
+                        val sessionId = parts.getOrNull(1)
+                        if (sessionId != null) {
+                            val session = _uiState.value.sessions.find { it.name == sessionId }
+                            if (session != null) {
+                                selectSession(session)
+                            } else {
+                                _uiState.update { it.copy(currentScreen = Screen.Session(sessionId)) }
+                                startPolling(sessionId)
+                            }
+                        }
+                    }
+                    "repository" -> {
+                        val sourceId = parts.getOrNull(1)
+                        if (sourceId != null) {
+                            val source = _uiState.value.sources.find { it.name == sourceId }
+                            if (source != null) {
+                                selectSource(source)
+                            } else {
+                                _uiState.update { it.copy(currentScreen = Screen.Repository(sourceId)) }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun navigateBack() {
@@ -518,7 +555,6 @@ class SharedViewModel(
             }
             return true
         } catch (e: Exception) {
-            println("Polling error: $e")
             return false
         }
     }

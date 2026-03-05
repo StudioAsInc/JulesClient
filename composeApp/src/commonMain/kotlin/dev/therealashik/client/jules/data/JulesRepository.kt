@@ -10,7 +10,10 @@ import dev.therealashik.client.jules.model.CreateSessionConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -164,6 +167,10 @@ class JulesRepository(
             }
             
             try {
+                val sessionDeferred = async {
+                    getSession(sessionId, forceNetwork = forceNetwork)
+                }
+
                 val allActivities = mutableListOf<JulesActivity>()
                 var pageToken: String? = null
                 do {
@@ -181,9 +188,8 @@ class JulesRepository(
                 }
                 cache.set(cacheKey, json.encodeToString(allActivities))
 
-                // Also refresh the session details itself
-                // Optimized: Using getSession which has caching logic
-                getSession(sessionId, forceNetwork = forceNetwork)
+                // Also refresh the session details itself concurrently
+                sessionDeferred.await()
             } catch (e: Exception) {
                 println("Failed to refresh activities: $e")
                 throw e
@@ -243,13 +249,25 @@ class JulesRepository(
     suspend fun warmCache() {
         withContext(Dispatchers.IO) {
             try {
-                // Warm sources
-                refreshSources(forceNetwork = true)
+                coroutineScope {
+                    // Warm sources and sessions concurrently
+                    val sourcesDeferred = async { refreshSources(forceNetwork = true) }
+                    val sessionsDeferred = async { refreshSessions(forceNetwork = true) }
+
+                    sourcesDeferred.await()
+                    sessionsDeferred.await()
+                }
                 
-                // Warm sessions
-                refreshSessions(forceNetwork = true)
-                
-                // TODO: Add selective cache warming for frequently accessed sessions
+                // Warm frequently accessed sessions and their activities
+                val frequentlyAccessedKeys = cache.getFrequentlyAccessedKeys("session_", limit = 5)
+                frequentlyAccessedKeys.forEach { key ->
+                    val sessionId = key.removePrefix("session_")
+                    if (sessionId.isNotEmpty()) {
+                        getSession(sessionId, forceNetwork = true)
+                        refreshActivities(sessionId, forceNetwork = true)
+                    }
+                }
+
                 // TODO: Implement background cache refresh strategy
             } catch (e: Exception) {
                 println("Cache warming failed: $e")

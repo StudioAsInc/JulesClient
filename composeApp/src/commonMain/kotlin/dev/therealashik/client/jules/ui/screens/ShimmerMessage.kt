@@ -44,16 +44,6 @@ fun ShimmerMessage() {
     )
 
     Row(modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .size(32.dp)
-                .background(Color(0xFF18181B), CircleShape)
-                .border(1.dp, Color.White.copy(alpha = 0.1f), CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(Icons.Default.SmartToy, null, tint = Color(0xFF818CF8), modifier = Modifier.size(18.dp))
-        }
-        Spacer(modifier = Modifier.width(16.dp))
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Box(modifier = Modifier.height(16.dp).width(200.dp).clip(RoundedCornerShape(4.dp)).background(brush))
             Box(modifier = Modifier.height(16.dp).width(160.dp).clip(RoundedCornerShape(4.dp)).background(brush))

@@ -296,160 +296,106 @@ fun ActivityItem(activity: JulesActivity, defaultCardState: Boolean, onApprovePl
     ) {
         // System Message
         if (activity.originator == "system" && !isPlan && !isPlanApproved && !isProgress && !isCompleted && !isFailed) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = JulesSpacing.s),
-                contentAlignment = Alignment.Center
-            ) {
-                 Text(
-                    text = text ?: "System Event",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color(0xFF71717A), // Zinc-500
-                    modifier = Modifier
-                        .background(Color.White.copy(alpha = JulesOpacity.subtle), JulesShapes.circle)
-                        .border(1.dp, Color.White.copy(alpha = JulesOpacity.subtle), JulesShapes.circle)
-                        .padding(horizontal = JulesSpacing.m, vertical = JulesSpacing.xs)
-                )
-            }
+            SystemEventMessage(text)
             return
         }
 
         // User/Agent Message Header & Bubble
         if (text != null) {
-            var isTimestampVisible by remember { mutableStateOf(false) }
+            ChatMessageBubble(isUser, text, activity.createTime)
+        }
 
-            Row(
-                verticalAlignment = Alignment.Top,
+        // Indented Content (Plans, Artifacts, Progress)
+        // If it was a user message, we don't usually have these attached, but if we do, show them.
+        // For agent, we indent.
+        AttachedContent(activity, isProgress, isPlan, isPlanApproved, isCompleted, isFailed, defaultCardState, onApprovePlan)
+    }
+}
+
+@Composable
+fun SystemEventMessage(text: String?) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = JulesSpacing.s),
+        contentAlignment = Alignment.Center
+    ) {
+         Text(
+            text = text ?: "System Event",
+            style = MaterialTheme.typography.labelSmall,
+            color = Color(0xFF71717A), // Zinc-500
+            modifier = Modifier
+                .background(Color.White.copy(alpha = JulesOpacity.subtle), JulesShapes.circle)
+                .border(1.dp, Color.White.copy(alpha = JulesOpacity.subtle), JulesShapes.circle)
+                .padding(horizontal = JulesSpacing.m, vertical = JulesSpacing.xs)
+        )
+    }
+}
+
+@Composable
+fun ChatMessageBubble(isUser: Boolean, text: String, createTime: String) {
+    var isTimestampVisible by remember { mutableStateOf(false) }
+
+    Row(
+        verticalAlignment = Alignment.Top,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = !isUser) { isTimestampVisible = !isTimestampVisible },
+        horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
+    ) {
+        if (!isUser) {
+             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(enabled = !isUser) { isTimestampVisible = !isTimestampVisible },
-                horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
+                    .size(JulesSizes.avatar)
+                    .background(Color(0xFF18181B), JulesShapes.circle)
+                    .border(1.dp, Color.White.copy(alpha = JulesOpacity.normal), JulesShapes.circle),
+                contentAlignment = Alignment.Center
             ) {
-                if (!isUser) {
-                     Box(
-                        modifier = Modifier
-                            .size(JulesSizes.avatar)
-                            .background(Color(0xFF18181B), JulesShapes.circle)
-                            .border(1.dp, Color.White.copy(alpha = JulesOpacity.normal), JulesShapes.circle),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Default.SmartToy,
-                            contentDescription = "Jules",
-                            tint = Color(0xFF818CF8), // Indigo-400
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(JulesSpacing.l))
-                }
+                Icon(
+                    Icons.Default.SmartToy,
+                    contentDescription = "Jules",
+                    tint = Color(0xFF818CF8), // Indigo-400
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(JulesSpacing.l))
+        }
 
-                val bubbleShape = JulesShapes.large
+        val bubbleShape = JulesShapes.large
 
-                Column(
-                    horizontalAlignment = if (isUser) Alignment.End else Alignment.Start,
-                    modifier = Modifier
-                        .weight(1f, fill = false)
-                        .then(if (isUser) Modifier.fillMaxWidth(0.85f) else Modifier)
-                ) {
-                    // Bubble
-                    Box(
-                        modifier = Modifier
-                            .clip(bubbleShape)
-                            .background(if (isUser) Color(0xFF27272A) else Color.Transparent)
-                            .border(
-                                width = if (isUser) 1.dp else 0.dp,
-                                color = if (isUser) Color.White.copy(alpha = JulesOpacity.subtle) else Color.Transparent,
-                                shape = bubbleShape
-                            )
-                            .padding(if (isUser) JulesSpacing.l else 0.dp)
-                            .animateContentSize()
-                    ) {
-                        // Expansion Logic for User Messages
-                        if (isUser) {
-                            val isLong = text.length > 500 || text.count { it == '\n' } > 8
-                            var isExpanded by remember { mutableStateOf(false) }
+        Column(
+            horizontalAlignment = if (isUser) Alignment.End else Alignment.Start,
+            modifier = Modifier
+                .weight(1f, fill = false)
+                .then(if (isUser) Modifier.fillMaxWidth(0.85f) else Modifier)
+        ) {
+            // Bubble
+            Box(
+                modifier = Modifier
+                    .clip(bubbleShape)
+                    .background(if (isUser) Color(0xFF27272A) else Color.Transparent)
+                    .border(
+                        width = if (isUser) 1.dp else 0.dp,
+                        color = if (isUser) Color.White.copy(alpha = JulesOpacity.subtle) else Color.Transparent,
+                        shape = bubbleShape
+                    )
+                    .padding(if (isUser) JulesSpacing.l else 0.dp)
+                    .animateContentSize()
+            ) {
+                // Expansion Logic for User Messages
+                if (isUser) {
+                    val isLong = text.length > 500 || text.count { it == '\n' } > 8
+                    var isExpanded by remember { mutableStateOf(false) }
 
-                            Column {
-                                Box(
-                                    modifier = Modifier.heightIn(max = if (isLong && !isExpanded) 200.dp else 5000.dp)
-                                ) {
-                                    SelectionContainer {
-                                        Markdown(
-                                            content = text,
-                                            colors = DefaultMarkdownColors(
-                                                 text = Color.White.copy(alpha = 0.9f),
-                                                 codeText = Color(0xFFCE9178),
-                                                 codeBackground = Color(0xFF1E1E1E),
-                                                 inlineCodeText = Color(0xFFCE9178),
-                                                 inlineCodeBackground = Color(0xFF1E1E1E),
-                                                 dividerColor = Color.Gray,
-                                                 linkText = Color(0xFF818CF8)
-                                            ),
-                                            typography = DefaultMarkdownTypography(
-                                                 h1 = MaterialTheme.typography.headlineLarge,
-                                                 h2 = MaterialTheme.typography.headlineMedium,
-                                                 h3 = MaterialTheme.typography.headlineSmall,
-                                                 h4 = MaterialTheme.typography.titleLarge,
-                                                 h5 = MaterialTheme.typography.titleMedium,
-                                                 h6 = MaterialTheme.typography.titleSmall,
-                                                 text = MaterialTheme.typography.bodyMedium.copy(lineHeight = 24.sp),
-                                                 code = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
-                                                 inlineCode = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
-                                                 quote = MaterialTheme.typography.bodyMedium,
-                                                 paragraph = MaterialTheme.typography.bodyMedium,
-                                                 ordered = MaterialTheme.typography.bodyMedium,
-                                                 bullet = MaterialTheme.typography.bodyMedium,
-                                                 list = MaterialTheme.typography.bodyMedium,
-                                                 link = MaterialTheme.typography.bodyMedium
-                                            )
-                                        )
-                                    }
-
-                                    // Gradient Overlay
-                                    if (isLong && !isExpanded) {
-                                        Box(
-                                            modifier = Modifier
-                                                .align(Alignment.BottomCenter)
-                                                .fillMaxWidth()
-                                                .height(JulesSizes.touchTarget)
-                                                .background(
-                                                    Brush.verticalGradient(
-                                                        listOf(Color.Transparent, Color(0xFF27272A))
-                                                    )
-                                                )
-                                        )
-                                    }
-                                }
-
-                                if (isLong) {
-                                    TextButton(
-                                        onClick = { isExpanded = !isExpanded },
-                                        modifier = Modifier.align(Alignment.CenterHorizontally).height(32.dp),
-                                        contentPadding = PaddingValues(JulesSpacing.xs)
-                                    ) {
-                                        Text(
-                                            if (isExpanded) "Show less" else "Show more",
-                                            fontSize = 12.sp,
-                                            color = Color(0xFFA1A1AA)
-                                        )
-                                        Spacer(Modifier.width(JulesSpacing.xs))
-                                        Icon(
-                                            if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                            null,
-                                            tint = Color(0xFFA1A1AA),
-                                            modifier = Modifier.size(14.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        } else {
-                            // Agent Message (Standard Render)
+                    Column {
+                        Box(
+                            modifier = Modifier.heightIn(max = if (isLong && !isExpanded) 200.dp else 5000.dp)
+                        ) {
                             SelectionContainer {
                                 Markdown(
                                     content = text,
                                     colors = DefaultMarkdownColors(
-                                         text = Color(0xFFE4E4E7), // Zinc-200
+                                         text = Color.White.copy(alpha = 0.9f),
                                          codeText = Color(0xFFCE9178),
                                          codeBackground = Color(0xFF1E1E1E),
                                          inlineCodeText = Color(0xFFCE9178),
@@ -464,10 +410,7 @@ fun ActivityItem(activity: JulesActivity, defaultCardState: Boolean, onApprovePl
                                          h4 = MaterialTheme.typography.titleLarge,
                                          h5 = MaterialTheme.typography.titleMedium,
                                          h6 = MaterialTheme.typography.titleSmall,
-                                         text = MaterialTheme.typography.bodyMedium.copy(
-                                             lineHeight = 24.sp,
-                                             fontWeight = FontWeight.Light
-                                         ),
+                                         text = MaterialTheme.typography.bodyMedium.copy(lineHeight = 24.sp),
                                          code = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
                                          inlineCode = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
                                          quote = MaterialTheme.typography.bodyMedium,
@@ -479,64 +422,145 @@ fun ActivityItem(activity: JulesActivity, defaultCardState: Boolean, onApprovePl
                                     )
                                 )
                             }
+
+                            // Gradient Overlay
+                            if (isLong && !isExpanded) {
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomCenter)
+                                        .fillMaxWidth()
+                                        .height(JulesSizes.touchTarget)
+                                        .background(
+                                            Brush.verticalGradient(
+                                                listOf(Color.Transparent, Color(0xFF27272A))
+                                            )
+                                        )
+                                )
+                            }
+                        }
+
+                        if (isLong) {
+                            TextButton(
+                                onClick = { isExpanded = !isExpanded },
+                                modifier = Modifier.align(Alignment.CenterHorizontally).height(32.dp),
+                                contentPadding = PaddingValues(JulesSpacing.xs)
+                            ) {
+                                Text(
+                                    if (isExpanded) "Show less" else "Show more",
+                                    fontSize = 12.sp,
+                                    color = Color(0xFFA1A1AA)
+                                )
+                                Spacer(Modifier.width(JulesSpacing.xs))
+                                Icon(
+                                    if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                    null,
+                                    tint = Color(0xFFA1A1AA),
+                                    modifier = Modifier.size(14.dp)
+                                )
+                            }
                         }
                     }
-
-                    // Timestamp (Agent only)
-                    AnimatedVisibility(visible = isTimestampVisible && !isUser) {
-                        Text(
-                            "Jules • ${activity.createTime.take(16).replace("T", " ")}", // Simple formatting
-                            fontSize = 10.sp,
-                            color = Color(0xFF52525B),
-                            fontFamily = FontFamily.Monospace,
-                            modifier = Modifier.padding(top = JulesSpacing.xs)
+                } else {
+                    // Agent Message (Standard Render)
+                    SelectionContainer {
+                        Markdown(
+                            content = text,
+                            colors = DefaultMarkdownColors(
+                                 text = Color(0xFFE4E4E7), // Zinc-200
+                                 codeText = Color(0xFFCE9178),
+                                 codeBackground = Color(0xFF1E1E1E),
+                                 inlineCodeText = Color(0xFFCE9178),
+                                 inlineCodeBackground = Color(0xFF1E1E1E),
+                                 dividerColor = Color.Gray,
+                                 linkText = Color(0xFF818CF8)
+                            ),
+                            typography = DefaultMarkdownTypography(
+                                 h1 = MaterialTheme.typography.headlineLarge,
+                                 h2 = MaterialTheme.typography.headlineMedium,
+                                 h3 = MaterialTheme.typography.headlineSmall,
+                                 h4 = MaterialTheme.typography.titleLarge,
+                                 h5 = MaterialTheme.typography.titleMedium,
+                                 h6 = MaterialTheme.typography.titleSmall,
+                                 text = MaterialTheme.typography.bodyMedium.copy(
+                                     lineHeight = 24.sp,
+                                     fontWeight = FontWeight.Light
+                                 ),
+                                 code = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
+                                 inlineCode = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
+                                 quote = MaterialTheme.typography.bodyMedium,
+                                 paragraph = MaterialTheme.typography.bodyMedium,
+                                 ordered = MaterialTheme.typography.bodyMedium,
+                                 bullet = MaterialTheme.typography.bodyMedium,
+                                 list = MaterialTheme.typography.bodyMedium,
+                                 link = MaterialTheme.typography.bodyMedium
+                            )
                         )
                     }
                 }
             }
+
+            // Timestamp (Agent only)
+            AnimatedVisibility(visible = isTimestampVisible && !isUser) {
+                Text(
+                    "Jules • ${createTime.take(16).replace("T", " ")}", // Simple formatting
+                    fontSize = 10.sp,
+                    color = Color(0xFF52525B),
+                    fontFamily = FontFamily.Monospace,
+                    modifier = Modifier.padding(top = JulesSpacing.xs)
+                )
+            }
+        }
+    }
+    Spacer(modifier = Modifier.height(JulesSpacing.s))
+}
+
+@Composable
+fun AttachedContent(
+    activity: JulesActivity,
+    isProgress: Boolean,
+    isPlan: Boolean,
+    isPlanApproved: Boolean,
+    isCompleted: Boolean,
+    isFailed: Boolean,
+    defaultCardState: Boolean,
+    onApprovePlan: (String?) -> Unit
+) {
+    Column(modifier = Modifier.padding(start = 40.dp)) {
+
+        // Progress Updates
+        val progressUpdate = activity.progressUpdated
+        if (isProgress && progressUpdate != null) {
+            ProgressItem(progressUpdate)
             Spacer(modifier = Modifier.height(JulesSpacing.s))
         }
 
-        // Indented Content (Plans, Artifacts, Progress)
-        // If it was a user message, we don't usually have these attached, but if we do, show them.
-        // For agent, we indent.
-        Column(modifier = Modifier.padding(start = 40.dp)) {
+        // Plan
+        val planGenerated = activity.planGenerated
+        if (isPlan && planGenerated != null) {
+            val plan = planGenerated.plan
+            // val isApproved = activity.planApproved != null // Simplification
+            PlanCard(plan, defaultCardState, onApprove = { onApprovePlan(activity.name) })
+            Spacer(modifier = Modifier.height(JulesSpacing.s))
+        }
 
-            // Progress Updates
-            val progressUpdate = activity.progressUpdated
-            if (isProgress && progressUpdate != null) {
-                ProgressItem(progressUpdate)
-                Spacer(modifier = Modifier.height(JulesSpacing.s))
-            }
+        // Plan Approved
+        if (isPlanApproved) {
+            StatusBanner(success = true, message = "Plan Approved")
+            Spacer(modifier = Modifier.height(JulesSpacing.s))
+        }
 
-            // Plan
-            val planGenerated = activity.planGenerated
-            if (isPlan && planGenerated != null) {
-                val plan = planGenerated.plan
-                // val isApproved = activity.planApproved != null // Simplification
-                PlanCard(plan, defaultCardState, onApprove = { onApprovePlan(activity.name) })
-                Spacer(modifier = Modifier.height(JulesSpacing.s))
-            }
+        // Artifacts
+        activity.artifacts.forEach { artifact ->
+            ArtifactView(artifact, defaultCardState)
+            Spacer(modifier = Modifier.height(JulesSpacing.s))
+        }
 
-            // Plan Approved
-            if (isPlanApproved) {
-                StatusBanner(success = true, message = "Plan Approved")
-                Spacer(modifier = Modifier.height(JulesSpacing.s))
-            }
-
-            // Artifacts
-            activity.artifacts.forEach { artifact ->
-                ArtifactView(artifact, defaultCardState)
-                Spacer(modifier = Modifier.height(JulesSpacing.s))
-            }
-
-            // Completion / Failure
-            if (isCompleted) {
-                StatusBanner(true, "Session Completed Successfully")
-            }
-            if (isFailed) {
-                StatusBanner(false, "Session Failed: ${activity.sessionFailed?.reason ?: "Unknown"}")
-            }
+        // Completion / Failure
+        if (isCompleted) {
+            StatusBanner(true, "Session Completed Successfully")
+        }
+        if (isFailed) {
+            StatusBanner(false, "Session Failed: ${activity.sessionFailed?.reason ?: "Unknown"}")
         }
     }
 }

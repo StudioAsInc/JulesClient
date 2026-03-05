@@ -26,11 +26,8 @@ export default function App() {
         return apiKey ? new GeminiService(apiKey, pagination) : null;
     }, [apiKey, pagination]);
 
-    // Initialize API key from storage or environment
+    // Initialize API key from storage
     useEffect(() => {
-        // Check environment variables first (injected by Vite)
-        const envKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
-
         // Use sessionStorage for API keys as it's more secure than localStorage
         let storedKey = sessionStorage.getItem('jules_api_key');
 
@@ -42,10 +39,8 @@ export default function App() {
             localStorage.removeItem('jules_api_key');
         }
 
-        const key = envKey || storedKey;
-
-        if (key) {
-            setApiKey(key);
+        if (storedKey) {
+            setApiKey(storedKey);
         }
     }, []);
 

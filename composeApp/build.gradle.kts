@@ -92,6 +92,12 @@ kotlin {
             implementation(libs.ktor.client.cio)
             implementation(libs.sqldelight.sqlite)
         }
+        val jvmTest by getting {
+            dependencies {
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.coroutinesSwing)
+            }
+        }
         val iosMain by creating {
             dependencies {
                 implementation(libs.sqldelight.native)
@@ -139,6 +145,16 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "dev.therealashik.client.jules"
             packageVersion = "1.0.0"
+        }
+    }
+}
+
+kotlin {
+    sourceSets {
+        val jvmTest by getting {
+            dependencies {
+                implementation(libs.kotlinx.datetime)
+            }
         }
     }
 }

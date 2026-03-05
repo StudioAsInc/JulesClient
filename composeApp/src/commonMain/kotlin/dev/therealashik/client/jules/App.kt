@@ -17,15 +17,21 @@ import dev.therealashik.client.jules.ui.screens.SessionView
 import dev.therealashik.client.jules.ui.screens.SettingsScreen
 import dev.therealashik.client.jules.ui.screens.ThemeEditorScreen
 import androidx.compose.material3.MaterialTheme
+import dev.therealashik.client.jules.navigation.DeepLinkHandler
 import dev.therealashik.client.jules.viewmodel.Screen
 import dev.therealashik.client.jules.viewmodel.SharedViewModel
 
 @Composable
 fun App() {
     // TODO: Implement proper navigation with Compose Navigation library
-    // TODO: Add deep linking support
     val viewModel = viewModel { SharedViewModel() }
     val state by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        DeepLinkHandler.deepLinks.collect { url ->
+            viewModel.handleDeepLink(url)
+        }
+    }
 
     JulesTheme(themeManager = JulesData.themeManager) {
         // Handle Back Navigation - Platform specific implementation needed
@@ -137,13 +143,15 @@ fun JulesAppContent(viewModel: SharedViewModel) {
                             apiKey = state.apiKey ?: "",
                             onApiKeyChange = { viewModel.setApiKey(it) },
                             onNavigateBack = { viewModel.navigateBack() },
-                            onEditTheme = { viewModel.navigateToThemeEditor(it) }
+                            onEditTheme = { theme -> viewModel.navigateToThemeEditor(theme?.id) }
                         )
                     }
                     is Screen.ThemeEditor -> {
+                        val customThemes by JulesData.themeManager.customThemes.collectAsState()
+                        val existingTheme = customThemes.find { it.id == screen.themeId }
                         ThemeEditorScreen(
                             themeManager = JulesData.themeManager,
-                            existingTheme = (state.currentScreen as Screen.ThemeEditor).theme,
+                            existingTheme = existingTheme,
                             onNavigateBack = { viewModel.navigateBack() }
                         )
                     }
