@@ -265,6 +265,7 @@ private fun getTextContent(content: MessageContent?): String? {
 @Composable
 fun ActivityItem(activity: JulesActivity, defaultCardState: Boolean, onApprovePlan: (String?) -> Unit) {
     val isUser = activity.userMessaged != null || activity.userMessage != null
+    val isAgent = activity.agentMessaged != null || activity.agentMessage != null
     val isPlan = activity.planGenerated != null
     val isPlanApproved = activity.planApproved != null
     val isProgress = activity.progressUpdated != null
@@ -274,8 +275,7 @@ fun ActivityItem(activity: JulesActivity, defaultCardState: Boolean, onApprovePl
     // Determine content text
     val text = when {
         isUser -> getTextContent(activity.userMessaged) ?: getTextContent(activity.userMessage)
-        activity.agentMessaged != null -> getTextContent(activity.agentMessaged)
-        activity.agentMessage != null -> getTextContent(activity.agentMessage)
+        isAgent -> getTextContent(activity.agentMessaged) ?: getTextContent(activity.agentMessage) ?: "Thinking..."
         isPlan -> null // Rendered separately
         else -> activity.description // System message or fallback
     }
@@ -294,14 +294,14 @@ fun ActivityItem(activity: JulesActivity, defaultCardState: Boolean, onApprovePl
             .fillMaxWidth()
             .padding(vertical = JulesSpacing.m) // Increased vertical padding from 4.dp to 12.dp
     ) {
-        // System Message
-        if (activity.originator == "system" && !isPlan && !isPlanApproved && !isProgress && !isCompleted && !isFailed) {
+        // System Message (only if no other content types)
+        if (activity.originator == "system" && !isPlan && !isPlanApproved && !isProgress && !isCompleted && !isFailed && !isUser && !isAgent) {
             SystemEventMessage(text)
             return
         }
 
         // User/Agent Message Header & Bubble
-        if (text != null) {
+        if (text != null && (isUser || isAgent)) {
             ChatMessageBubble(isUser, text, activity.createTime)
         }
 
