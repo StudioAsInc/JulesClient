@@ -35,11 +35,11 @@ object JulesData {
         ThemeManager(database, settingsStorage)
     }
 
-    val api: JulesApi by lazy {
+    val julesApi: JulesApi by lazy {
         RealJulesApi()
     }
 
     val repository: JulesRepository by lazy {
-        JulesRepository(database, api, cacheManager)
+        JulesRepository(database, julesApi, cacheManager)
     }
 }
