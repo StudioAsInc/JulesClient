@@ -8,6 +8,7 @@ import {
   ListActivitiesResponse,
 } from "../types";
 import { PaginationSettings } from "../types/themeTypes";
+import { Logger } from "../utils/logger";
 
 export interface ListSourcesOptions {
   pageSize?: number;
@@ -91,7 +92,7 @@ export class GeminiService {
         nextPageToken: data.nextPageToken || data.next_page_token
       };
     } catch (error) {
-      console.error("listSources error:", error);
+      Logger.error("listSources error:", error);
       throw error;
     }
   }
@@ -139,7 +140,7 @@ export class GeminiService {
         displayName: repo ? `${repo.owner}/${repo.repo}` : data.name.split('/').slice(-2).join('/')
       };
     } catch (error) {
-      console.error("getSource error:", error);
+      Logger.error("getSource error:", error);
       throw error;
     }
   }
@@ -155,7 +156,7 @@ export class GeminiService {
       const res = await fetch(`${this.baseUrl}/sessions?${params.toString()}`, { headers: this.getHeaders() });
 
       if (!res.ok) {
-        console.warn("listSessions failed with status:", res.status);
+        Logger.warn("listSessions failed with status:", res.status);
         return { sessions: [], nextPageToken: undefined };
       }
 
@@ -167,7 +168,7 @@ export class GeminiService {
         nextPageToken: data.nextPageToken || data.next_page_token
       };
     } catch (error) {
-      console.error("listSessions network error:", error);
+      Logger.error("listSessions network error:", error);
       return { sessions: [], nextPageToken: undefined };
     }
   }
@@ -269,7 +270,7 @@ export class GeminiService {
         nextPageToken: data.nextPageToken || data.next_page_token
       };
     } catch (error) {
-      console.warn("listActivities network error:", error);
+      Logger.warn("listActivities network error:", error);
       return { activities: [], nextPageToken: undefined };
     }
   }
@@ -302,7 +303,7 @@ export class GeminiService {
       const data = await res.json();
       return mapActivity(data);
     } catch (error) {
-      console.error("getActivity error:", error);
+      Logger.error("getActivity error:", error);
       throw error;
     }
   }

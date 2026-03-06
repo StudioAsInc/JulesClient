@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { Logger } from '../utils/logger';
 import {
     Theme,
     ThemeSettings,
@@ -53,7 +54,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
                 }
             }
         } catch (e) {
-            console.warn('Failed to load theme settings:', e);
+            Logger.warn('Failed to load theme settings:', e);
         }
         return DEFAULT_SETTINGS;
     });

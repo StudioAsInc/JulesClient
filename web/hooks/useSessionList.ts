@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { GeminiService } from '../services/geminiService';
 import { JulesSession } from '../types';
+import { Logger } from '../utils/logger';
 
 export function useSessionList(service: GeminiService | null) {
     const [sessions, setSessions] = useState<JulesSession[]>([]);
@@ -22,7 +23,7 @@ export function useSessionList(service: GeminiService | null) {
 
             setSessionsUsed(usedCount);
         } catch (e) {
-            console.error("Failed to fetch sessions", e);
+            Logger.error("Failed to fetch sessions", e);
         }
     }, [service]);
 

@@ -11,6 +11,7 @@ import { GeminiService } from './services/geminiService';
 import { useTheme } from './contexts/ThemeContext';
 import { useSources } from './hooks/useSources';
 import { useJulesSession } from './hooks/useJulesSession';
+import { Logger } from './utils/logger';
 
 export default function App() {
     const [apiKey, setApiKey] = useState<string>('');
@@ -96,7 +97,7 @@ export default function App() {
                         setCurrentSession(sess);
                         startPolling(sess.name);
                     } catch (e) {
-                        console.error("Failed to load session from URL", e);
+                        Logger.error("Failed to load session from URL", e);
                     }
                 }
             }
