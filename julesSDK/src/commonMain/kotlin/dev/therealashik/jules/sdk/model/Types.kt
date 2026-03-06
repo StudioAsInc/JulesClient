@@ -102,7 +102,9 @@ data class JulesActivity(
 @Serializable
 data class MessageContent(
     val text: String? = null,
-    val parts: List<MessagePart>? = null
+    val parts: List<MessagePart>? = null,
+    val userMessage: String? = null,
+    val agentMessage: String? = null
 )
 
 @Serializable
