@@ -7,6 +7,7 @@ import io.ktor.client.engine.*
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.timeout
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -20,36 +21,34 @@ class JulesClient(
     private val maxRetries: Int = 3,
     private val timeoutMs: Long = 30000,
     private val debugMode: Boolean = false,
-    engine: HttpClientEngine? = null
+    engine: HttpClientEngine? = null,
+    private val logger: JulesLogger = DefaultJulesLogger()
 ) {
     companion object {
         const val SDK_VERSION = "1.0.0"
     }
 
-    // TODO: Add request/response interceptors for logging and monitoring
     // TODO: Implement rate limiting to prevent API quota exhaustion
     // TODO: Add WebSocket support for real-time activity streaming
-    private val client = if (engine != null) {
-        HttpClient(engine) {
-            install(HttpTimeout)
-            install(ContentNegotiation) {
-                json(Json {
-                    ignoreUnknownKeys = true
-                    isLenient = true
-                    encodeDefaults = true
-                })
-            }
+    private val client = engine?.let { HttpClient(it) { configureClient() } } ?: HttpClient { configureClient() }
+
+    private fun HttpClientConfig<*>.configureClient() {
+        install(HttpTimeout)
+        install(ContentNegotiation) {
+            json(Json {
+                ignoreUnknownKeys = true
+                isLenient = true
+                encodeDefaults = true
+            })
         }
-    } else {
-        HttpClient {
-            install(HttpTimeout)
-            install(ContentNegotiation) {
-                json(Json {
-                    ignoreUnknownKeys = true
-                    isLenient = true
-                    encodeDefaults = true
-                })
+        install(Logging) {
+            logger = object : Logger {
+                override fun log(message: String) {
+                    this@JulesClient.logger.log(message)
+                }
             }
+            level = if (debugMode) LogLevel.ALL else LogLevel.INFO
+            sanitizeHeader { it == "X-Goog-Api-Key" }
         }
     }
 
@@ -78,7 +77,7 @@ class JulesClient(
         repeat(retries) { attempt ->
             try {
                 if (debugMode && attempt > 0) {
-                    println("[JulesSDK] Retry attempt $attempt for $urlString")
+                    logger.log("[JulesSDK] Retry attempt $attempt for $urlString")
                 }
 
                 val response = client.request(urlString) {
@@ -119,7 +118,7 @@ class JulesClient(
                 if (attempt < retries - 1) {
                     val delayMs = (100 * 2.0.pow(attempt)).toLong()
                     if (debugMode) {
-                        println("[JulesSDK] Network error, retrying in ${delayMs}ms: ${e.message}")
+                        logger.log("[JulesSDK] Network error, retrying in ${delayMs}ms: ${e.message}")
                     }
                     delay(delayMs)
                 } else {
