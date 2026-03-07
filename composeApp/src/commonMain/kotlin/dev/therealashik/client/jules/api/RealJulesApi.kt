@@ -3,8 +3,7 @@ package dev.therealashik.client.jules.api
 import dev.therealashik.jules.sdk.JulesClient
 import dev.therealashik.jules.sdk.model.*
 
-object RealJulesApi : JulesApi {
-    private val client = JulesClient()
+class RealJulesApi(private val client: JulesClient = JulesClient()) : JulesApi {
 
     override fun setApiKey(key: String) {
         client.setApiKey(key)

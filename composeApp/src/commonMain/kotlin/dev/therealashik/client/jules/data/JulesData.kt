@@ -1,5 +1,6 @@
 package dev.therealashik.client.jules.data
 
+import dev.therealashik.client.jules.api.JulesApi
 import dev.therealashik.client.jules.api.RealJulesApi
 import dev.therealashik.client.jules.cache.CacheManager
 import dev.therealashik.client.jules.db.DriverFactory
@@ -34,7 +35,11 @@ object JulesData {
         ThemeManager(database, settingsStorage)
     }
 
+    val julesApi: JulesApi by lazy {
+        RealJulesApi()
+    }
+
     val repository: JulesRepository by lazy {
-        JulesRepository(database, RealJulesApi, cacheManager)
+        JulesRepository(database, julesApi, cacheManager)
     }
 }

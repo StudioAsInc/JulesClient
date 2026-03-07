@@ -64,7 +64,7 @@ data class JulesUiState(
 // TODO: Add proper error handling with retry mechanisms
 // TODO: Implement offline mode support
 class SharedViewModel(
-    private val api: JulesApi = RealJulesApi,
+    private val api: JulesApi = JulesData.julesApi,
     private val repository: JulesRepository = JulesData.repository
 ) : ViewModel() {
 
