@@ -30,7 +30,7 @@ export default function App() {
     // Initialize API key from storage
     useEffect(() => {
         // Use sessionStorage for API keys as it's more secure than localStorage
-        let storedKey = import.meta.env.VITE_JULES_API_KEY || sessionStorage.getItem('jules_api_key');
+        let storedKey = import.meta.env.JULES_API_KEY || sessionStorage.getItem('jules_api_key');
 
         // Migration: If key is in localStorage, move it to sessionStorage and remove from localStorage
         const legacyKey = localStorage.getItem('jules_api_key');
