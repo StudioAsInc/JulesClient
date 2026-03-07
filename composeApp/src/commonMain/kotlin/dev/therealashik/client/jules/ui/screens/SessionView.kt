@@ -253,7 +253,7 @@ fun SessionView(
 
 private fun getTextContent(content: MessageContent?): String? {
     if (content == null) return null
-    val text = content.text
+    val text = content.text ?: content.userMessage ?: content.agentMessage
     if (!text.isNullOrBlank()) return text
     val parts = content.parts
     if (parts != null && parts.isNotEmpty()) {
