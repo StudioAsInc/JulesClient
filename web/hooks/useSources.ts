@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { GeminiService } from '../services/geminiService';
 import { JulesSource } from '../types';
+import { Logger } from '../utils/logger';
 
 export function useSources(service: GeminiService | null) {
     const [sources, setSources] = useState<JulesSource[]>([]);
@@ -21,7 +22,7 @@ export function useSources(service: GeminiService | null) {
                  setCurrentSource(prev => prev || response.sources[0]);
             }
         } catch (e: any) {
-            console.error(e);
+            Logger.error(e);
             if (e.message?.includes('Invalid API Key')) {
                  setError("Invalid API Key. Please reset.");
             } else {

@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { GeminiService } from '../services/geminiService';
 import { JulesSession, JulesActivity, JulesSource } from '../types';
 import { SessionCreateOptions } from '../components/InputArea';
+import { Logger } from '../utils/logger';
 
 interface SessionListActions {
     addSession: (session: JulesSession) => void;
@@ -91,7 +92,7 @@ export function useActiveSession(
                     pollTimeout.current = window.setTimeout(poll, 2000);
                 }
             } catch (e) {
-                console.error("Polling error", e);
+                Logger.error("Polling error", e);
                 // Retry on error
                 if (activePollingSession.current === sessionName) {
                     pollTimeout.current = window.setTimeout(poll, 2000);
