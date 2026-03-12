@@ -37,7 +37,7 @@ export function useActiveSession(
         }
 
         const poll = async () => {
-            if (activePollingSession.current !== sessionName) return;
+            if (activePollingSession.current !== sessionName || !service) return;
 
             try {
                 const sessionId = sessionName.split('/').pop()!;
@@ -112,6 +112,7 @@ export function useActiveSession(
     }, []);
 
     const handleSendMessage = useCallback(async (text: string, options: SessionCreateOptions) => {
+        if (!service) return;
         setError(null);
         setIsProcessing(true);
 
@@ -165,7 +166,7 @@ export function useActiveSession(
     }, [currentSession, currentSource, navigate, startPolling, sessionListActions]);
 
     const handleApprovePlan = useCallback(async (activityName: string) => {
-        if (!currentSession) return;
+        if (!currentSession || !service) return;
         setIsProcessing(true);
         try {
             await service.approvePlan(currentSession.name);
@@ -174,7 +175,7 @@ export function useActiveSession(
         } finally {
             setIsProcessing(false);
         }
-    }, [currentSession]);
+    }, [currentSession, service]);
 
     const handleSelectSession = useCallback((session: JulesSession) => {
         setCurrentSession(session);
@@ -183,6 +184,7 @@ export function useActiveSession(
     }, [navigate, startPolling]);
 
     const handleDeleteSession = useCallback(async (sessionName: string) => {
+        if (!service) return;
         try {
             await service.deleteSession(sessionName);
             sessionListActions.removeSession(sessionName);
@@ -196,9 +198,10 @@ export function useActiveSession(
         } catch (e: any) {
             setError(e.message || "Failed to delete session");
         }
-    }, [currentSession, navigate, sessionListActions]);
+    }, [currentSession, navigate, sessionListActions, service]);
 
     const handleUpdateSession = useCallback(async (sessionName: string, updates: Partial<JulesSession>, updateMask: string[]) => {
+        if (!service) return;
         try {
             const updated = await service.updateSession(sessionName, updates, updateMask);
             sessionListActions.updateSession(sessionName, updated);
@@ -208,7 +211,7 @@ export function useActiveSession(
         } catch (e: any) {
             setError(e.message || "Failed to update session");
         }
-    }, [currentSession, sessionListActions]);
+    }, [currentSession, sessionListActions, service]);
 
     return {
         currentSession,
