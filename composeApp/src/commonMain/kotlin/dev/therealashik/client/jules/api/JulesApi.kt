@@ -29,7 +29,7 @@ interface JulesApi {
     suspend fun updateSession(sessionName: String, updates: Map<String, Any?>, updateMask: List<String>): JulesSession
     suspend fun deleteSession(sessionName: String)
 
-    suspend fun listActivities(sessionName: String, pageSize: Int = 50, pageToken: String? = null): ListActivitiesResponse
+    suspend fun listActivities(sessionName: String, pageSize: Int = 50, pageToken: String? = null, createTime: String? = null): ListActivitiesResponse
     suspend fun sendMessage(sessionName: String, prompt: String)
     suspend fun approvePlan(sessionName: String, planId: String? = null)
 }

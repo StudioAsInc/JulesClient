@@ -230,11 +230,12 @@ class JulesClient(
         }
     }
 
-    suspend fun listActivities(sessionName: String, pageSize: Int = 50, pageToken: String? = null): ListActivitiesResponse {
+    suspend fun listActivities(sessionName: String, pageSize: Int = 50, pageToken: String? = null, createTime: String? = null): ListActivitiesResponse {
         val cleanName = if (sessionName.startsWith("sessions/")) sessionName else "sessions/$sessionName"
         val params = buildString {
             append("?pageSize=$pageSize")
             if (pageToken != null) append("&pageToken=$pageToken")
+            if (createTime != null) append("&createTime=$createTime")
         }
         return authRequest("$baseUrl/$cleanName/activities$params")
     }

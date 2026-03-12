@@ -532,12 +532,23 @@ class SharedViewModel(
             // Check if we are still looking at this session
             if (_uiState.value.currentSession?.name != sessionName) return true
 
+            val lastActivityTime = _uiState.value.activities.lastOrNull()?.createTime
+
             // Execute concurrent requests to reduce latency
-            val (activitiesResp, session) = withContext(Dispatchers.IO) {
-                val actDeferred = async { api.listActivities(sessionName) }
-                val sessDeferred = async { api.getSession(sessionName) }
-                actDeferred.await() to sessDeferred.await()
+            withContext(Dispatchers.IO) {
+                val actDeferred = async {
+                    repository.refreshActivities(
+                        sessionId = sessionName,
+                        forceNetwork = true,
+                        createTime = lastActivityTime
+                    )
+                }
+                val sessDeferred = async { repository.getSession(sessionName, forceNetwork = true) }
+                actDeferred.await()
+                sessDeferred.await()
             }
+
+            val session = repository.getSession(sessionName, forceNetwork = false) ?: return false
 
             val isProcessing = session.state == SessionState.QUEUED ||
                                session.state == SessionState.PLANNING ||

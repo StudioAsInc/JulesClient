@@ -104,7 +104,7 @@ class JulesRepositoryTest {
         override suspend fun updateSession(sessionName: String, updates: Map<String, Any?>, updateMask: List<String>): JulesSession = JulesSession(name = "test", prompt = "test", createTime = "2024-01-01T00:00:00Z")
         override suspend fun deleteSession(sessionName: String) {}
 
-        override suspend fun listActivities(sessionName: String, pageSize: Int, pageToken: String?): ListActivitiesResponse {
+        override suspend fun listActivities(sessionName: String, pageSize: Int, pageToken: String?, createTime: String?): ListActivitiesResponse {
             listActivitiesCalls++
             return ListActivitiesResponse(activities = emptyList(), nextPageToken = null)
         }

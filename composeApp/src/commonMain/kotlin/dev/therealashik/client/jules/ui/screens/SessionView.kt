@@ -91,9 +91,15 @@ fun SessionView(
         if (activities.isNotEmpty() || session.outputs.isNotEmpty() || error != null) {
             // Wait a frame for layout
             kotlinx.coroutines.delay(100)
-            val count = activities.size + session.outputs.filter { it.pullRequest != null }.size
-            if (count > 0 || error != null) {
-                 listState.animateScrollToItem(listState.layoutInfo.totalItemsCount - 1)
+
+            val isAtBottom = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1
+            // Auto scroll down if it's the first time, or if we are already at the bottom
+            val isInitialLoad = listState.layoutInfo.totalItemsCount <= listState.layoutInfo.visibleItemsInfo.size
+            if (isAtBottom || isInitialLoad || listState.firstVisibleItemIndex == 0 && listState.layoutInfo.visibleItemsInfo.isEmpty()) {
+                val count = activities.size + session.outputs.filter { it.pullRequest != null }.size
+                if (count > 0 || error != null) {
+                     listState.animateScrollToItem(listState.layoutInfo.totalItemsCount - 1)
+                }
             }
         }
     }

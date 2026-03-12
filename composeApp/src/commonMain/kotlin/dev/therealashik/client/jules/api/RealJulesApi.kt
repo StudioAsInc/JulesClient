@@ -71,9 +71,10 @@ class RealJulesApi(private val client: JulesClient = JulesClient()) : JulesApi {
     override suspend fun listActivities(
         sessionName: String,
         pageSize: Int,
-        pageToken: String?
+        pageToken: String?,
+        createTime: String?
     ): ListActivitiesResponse {
-        return client.listActivities(sessionName, pageSize, pageToken)
+        return client.listActivities(sessionName, pageSize, pageToken, createTime)
     }
 
     override suspend fun sendMessage(sessionName: String, prompt: String) {
