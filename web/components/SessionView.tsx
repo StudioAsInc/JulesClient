@@ -42,7 +42,7 @@ export const SessionView: React.FC<SessionViewProps> = ({
 
         const { scrollHeight } = scrollRef.current;
         const isNewActivity = activities.length > prevActivityCount.current;
-        const lastActivity = activities.at(-1);
+        const lastActivity = activities.length > 0 ? activities[activities.length - 1] : undefined;
         const isUserMessage = lastActivity?.originator === 'user';
 
         // Scroll if:
