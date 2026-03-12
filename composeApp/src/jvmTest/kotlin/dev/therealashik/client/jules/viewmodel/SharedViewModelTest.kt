@@ -73,7 +73,7 @@ class SharedViewModelTest {
         override suspend fun updateSession(sessionName: String, updates: Map<String, Any?>, updateMask: List<String>) = JulesSession(name = "", prompt = "", createTime = "")
         override suspend fun deleteSession(sessionName: String) {}
 
-        override suspend fun listActivities(sessionName: String, pageSize: Int, pageToken: String?) = ListActivitiesResponse()
+        override suspend fun listActivities(sessionName: String, pageSize: Int, pageToken: String?, createTime: String?) = ListActivitiesResponse()
         override suspend fun sendMessage(sessionName: String, prompt: String) {}
         override suspend fun approvePlan(sessionName: String, planId: String?) {}
     }

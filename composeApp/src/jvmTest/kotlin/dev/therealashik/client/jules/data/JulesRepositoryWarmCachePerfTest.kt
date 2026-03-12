@@ -26,7 +26,7 @@ class MockJulesApi : JulesApi {
     }
 
     // Other methods...
-    override suspend fun listActivities(sessionName: String, pageSize: Int, pageToken: String?): ListActivitiesResponse = throw NotImplementedError()
+    override suspend fun listActivities(sessionName: String, pageSize: Int, pageToken: String?, createTime: String?): ListActivitiesResponse = throw NotImplementedError()
     override suspend fun createSession(prompt: String, sourceName: String, title: String?, requirePlanApproval: Boolean, automationMode: AutomationMode, startingBranch: String): JulesSession = throw NotImplementedError()
     override fun setApiKey(key: String): Unit = throw NotImplementedError()
     override fun getApiKey(): String = throw NotImplementedError()

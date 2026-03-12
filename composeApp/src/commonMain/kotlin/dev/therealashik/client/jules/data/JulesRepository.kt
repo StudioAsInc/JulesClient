@@ -148,11 +148,11 @@ class JulesRepository(
             }
     }
 
-    suspend fun refreshActivities(sessionId: String, forceNetwork: Boolean = false) {
+    suspend fun refreshActivities(sessionId: String, forceNetwork: Boolean = false, createTime: String? = null) {
         withContext(Dispatchers.IO) {
             val cacheKey = "activities_$sessionId"
             
-            if (!forceNetwork) {
+            if (!forceNetwork && createTime == null) {
                 cache.get(cacheKey)?.let { cached ->
                     val activities = json.decodeFromString<List<JulesActivity>>(cached)
                     val encodedActivities = activities.map { Triple(it.name, json.encodeToString(it), it.createTime) }
@@ -171,22 +171,37 @@ class JulesRepository(
                     getSession(sessionId, forceNetwork = forceNetwork)
                 }
 
-                val allActivities = mutableListOf<JulesActivity>()
+                val newActivities = mutableListOf<JulesActivity>()
                 var pageToken: String? = null
                 do {
-                    val response = api.listActivities(sessionId, pageSize = 50, pageToken = pageToken)
-                    allActivities.addAll(response.activities)
+                    val response = api.listActivities(sessionId, pageSize = 50, pageToken = pageToken, createTime = createTime)
+                    newActivities.addAll(response.activities)
                     pageToken = response.nextPageToken
                 } while (pageToken != null)
 
-                val encodedActivities = allActivities.map { Triple(it.name, json.encodeToString(it), it.createTime) }
+                val encodedActivities = newActivities.map { Triple(it.name, json.encodeToString(it), it.createTime) }
                 queries.transaction {
-                    queries.deleteAllActivitiesForSession(sessionId)
+                    if (createTime == null) {
+                        queries.deleteAllActivitiesForSession(sessionId)
+                    }
                     encodedActivities.forEach { (name, jsonBlob, createTime) ->
                         queries.insertActivity(name, sessionId, jsonBlob, createTime)
                     }
                 }
-                cache.set(cacheKey, json.encodeToString(allActivities))
+
+                if (createTime == null) {
+                    cache.set(cacheKey, json.encodeToString(newActivities))
+                } else {
+                    cache.get(cacheKey)?.let { cached ->
+                        val existingActivities = json.decodeFromString<List<JulesActivity>>(cached)
+                        val existingMap = existingActivities.associateBy { it.name }
+                        val newMap = newActivities.associateBy { it.name }
+                        val merged = (existingMap + newMap).values.sortedBy { it.createTime }.toList()
+                        cache.set(cacheKey, json.encodeToString(merged))
+                    } ?: run {
+                        cache.set(cacheKey, json.encodeToString(newActivities))
+                    }
+                }
 
                 // Also refresh the session details itself concurrently
                 sessionDeferred.await()
